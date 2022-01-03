@@ -38,7 +38,8 @@ public class TradeElement {
 	private int typeId;
 	private int recipeId;
 	private String formatCraftingSellSum;
-	private int factionNumber;
+	private Integer factionNumber;
+	@Nullable
 	private String faction;
 	private String formatCraftingBuySum;
 	private int craftingResultAmount;
@@ -185,9 +186,10 @@ public class TradeElement {
 	}
 
 	public int getFactionNumber() {
-		return factionNumber;
+		return factionNumber == null ? -1 : factionNumber;
 	}
 
+	@Nullable
 	public String getFaction() {
 		return faction;
 	}
