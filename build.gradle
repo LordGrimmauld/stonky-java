@@ -11,7 +11,10 @@ apply plugin: 'idea'
 apply plugin: 'application'
 
 group "mod.grimmauld.${appid}"
-version '1.0-SNAPSHOT'
+mainClassName = "mod.grimmauld.${appid}.Main"
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(16)
+println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 
 repositories {
     mavenCentral()
@@ -20,18 +23,19 @@ repositories {
     }
 }
 
-
-java.toolchain.languageVersion = JavaLanguageVersion.of(16)
-println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
-
-sourceSets.main {
-    java.srcDir "src/main/java"
-    resources.srcDir 'src/generated/resources'
+sourceSets {
+    main.java.srcDir "src/main/java"
+    main.resources.srcDir 'src/main/resources'
 }
 
 dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+    implementation 'org.jetbrains:annotations:22.0.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+    implementation 'com.google.code.gson:gson:2.8.9'
+    implementation 'commons-io:commons-io:2.11.0'
+    implementation "net.dv8tion:JDA:$jda_version"
+    implementation group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.32'
 }
 
 compileJava.options.encoding = 'UTF-8'
@@ -41,31 +45,21 @@ test {
 }
 
 jar {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
     manifest {
         attributes([
                 "Specification-Title"     : appid,
-                "Specification-Vendor"    : "Noobulus",
+                "Specification-Vendor"    : "Grimmauld",
                 "Specification-Version"   : "0.1", // We are version 1 of ourselves
                 "Implementation-Title"    : project.name,
                 "Implementation-Version"  : "${version}",
                 "Implementation-Vendor"   : "Grimmauld",
                 "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-                'Main-Class': "mod.grimmauld.${appid}.Main"
+                'Main-Class'              : mainClassName
         ])
     }
-}
-
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifact jar
-        }
-    }
-    repositories {
-        maven {
-            url "file:///${project.projectDir}/mcmodsrepo"
-        }
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
 }
 

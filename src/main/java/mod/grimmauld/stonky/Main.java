@@ -1,12 +1,20 @@
 package mod.grimmauld.stonky;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import mod.grimmauld.stonky.data.DataManager;
+import mod.grimmauld.stonky.data.TradeElement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 public class Main {
-	public static final Logger LOGGER = Logger.getLogger(BuildConfig.APPID);
+	public static final Logger LOGGER = LoggerFactory.getLogger(BuildConfig.APPID);
+	public static final DataManager DATA_MANAGER = new DataManager();
 
 	public static void main(String[] args) {
-		LOGGER.log(Level.INFO, "test");
+		DATA_MANAGER.refreshCache();
+		DATA_MANAGER.getTradeElements()
+			.stream()
+			.map(TradeElement::toString)
+			.forEach(LOGGER::info);
 	}
 }
