@@ -2,6 +2,7 @@ package mod.grimmauld.stonky.data;
 
 import java.awt.*;
 
+@SuppressWarnings("unused")
 public enum Rarity {
 	RARE("Rare", 0, 102, 204),
 	SPECIAL("Special", 51, 202, 204),
@@ -16,14 +17,6 @@ public enum Rarity {
 	Rarity(String name, int r, int g, int b) {
 		this.rarityName = name;
 		color = new Color(r, g, b);
-	}
-
-	public static Rarity byName(String name) {
-		for (Rarity rarity : Rarity.values()) {
-			if (rarity.rarityName.equals(name))
-				return rarity;
-		}
-		return Rarity.COMMON;
 	}
 
 	public boolean contains(TradeElement tradeElement) {

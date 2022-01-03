@@ -1,7 +1,6 @@
 package mod.grimmauld.stonky.data;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import mod.grimmauld.stonky.Main;
 import org.apache.commons.io.IOUtils;
@@ -27,14 +26,15 @@ public class DataManager {
 	}
 
 	public void refreshCache() {
-		String data = "{'data':[]}";
+		String data;
 		try {
 			data = IOUtils.toString(new URL("https://crossoutdb.com/data/search"), StandardCharsets.UTF_8);
 		} catch (IOException e) {
 			Main.LOGGER.error("Error reading data from crossoutdb: ", e);
+			data = "{'data':[]}";
 		}
-		JsonElement json = JsonParser.parseString(data);
-		tradeElements = StreamSupport.stream(json.getAsJsonObject()
+		tradeElements = StreamSupport.stream(JsonParser.parseString(data)
+				.getAsJsonObject()
 				.get("data")
 				.getAsJsonArray()
 				.spliterator(), false)

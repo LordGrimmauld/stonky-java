@@ -18,19 +18,15 @@ public abstract class GrimmSlashCommand {
 		this.name = name;
 	}
 
-	protected GrimmSlashCommand(String name) {
-		this(name, null);
-	}
-
-	protected void sendResponse(SlashCommandEvent event, String msg, boolean ephermal) {
+	protected void sendResponse(SlashCommandEvent event, String msg, boolean ephemeral) {
 		if (msg.isEmpty())
 			return;
 
 		while (msg.length() > 1990) {
-			event.reply(msg.substring(0, 1990)).setEphemeral(ephermal).submit();
+			event.reply(msg.substring(0, 1990)).setEphemeral(ephemeral).submit();
 			msg = msg.substring(1990);
 		}
-		event.reply(msg).setEphemeral(ephermal).submit();
+		event.reply(msg).setEphemeral(ephemeral).submit();
 	}
 
 	protected void sendEmbedResponse(SlashCommandEvent event, EmbedBuilder eb, boolean ephermal) {
