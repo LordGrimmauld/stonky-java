@@ -27,7 +27,6 @@ public class DataManager {
 	}
 
 	public void refreshCache() {
-		Main.LOGGER.info("Starting cache refresh");
 		String data = "{'data':[]}";
 		try {
 			data = IOUtils.toString(new URL("https://crossoutdb.com/data/search"), StandardCharsets.UTF_8);
