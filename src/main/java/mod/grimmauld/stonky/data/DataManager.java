@@ -11,11 +11,13 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 public class DataManager {
 	private static final Gson gson = new Gson();
+	private final Set<Consumer<Set<TradeElement>>> refreshCallbacks = new HashSet<>();
 	private Set<TradeElement> tradeElements = new HashSet<>();
 
 	public void refreshCache() {
@@ -27,12 +29,19 @@ public class DataManager {
 			Main.LOGGER.error("Error reading data from crossoutdb: ", e);
 		}
 		JsonElement json = JsonParser.parseString(data);
-		tradeElements = StreamSupport.stream(json.getAsJsonObject().get("data").getAsJsonArray().spliterator(), false)
+		tradeElements = StreamSupport.stream(json.getAsJsonObject()
+				.get("data")
+				.getAsJsonArray()
+				.spliterator(), false)
 			.map(je -> gson.fromJson(je, TradeElement.class))
 			.collect(Collectors.toSet());
 	}
 
 	public Set<TradeElement> getTradeElements() {
 		return tradeElements;
+	}
+
+	public void registerRefreshCallback(Consumer<Set<TradeElement>> callback) {
+		refreshCallbacks.add(callback);
 	}
 }

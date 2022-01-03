@@ -118,6 +118,26 @@ buildConfig {
     println("Using git stage ${gitstage}")
     buildConfigField "String", "GITHASH", "\"${gitstage}\""
 
+    /*
+        token=*************************************
+        invite=https://discord.com/api/oauth2/authorize?client_id=***************&permissions=311385214016&scope=applications.commands%20bot
+        owner=***************,
+        github=https://github.com/LordGrimmauld/stonky-java
+     */
+    def file = new File("discord.properties")
+    if (!file.exists()) {
+        throw new GradleException("No Discord configuration found")
+    } else {
+        file.withReader {
+            Properties props = new Properties()
+            props.load(it)
+            buildConfigField "String", "DISCORD_TOKEN", "\"${props.token}\""
+            buildConfigField "String", "INVITE", "\"${props.invite}\""
+            buildConfigField "String", "OWNER", "\"${props.owner}\""
+            buildConfigField "String", "GITHUB", "\"${props.github}\""
+        }
+    }
+
     version = project.version
     packageName = project.group
 }
