@@ -29,7 +29,6 @@ public class CraftCommand extends GrimmSlashCommand {
 	@Override
 	public void execute(SlashCommandEvent event) {
 		sendResponse(event, "Creating thread...", true);
-		event.getMember();
 		MessageChannel channel = getOrCreateThread("Crafting", event.getChannel());
 		CONSIDERED_CRAFTABLE.stream()
 			.map(this::createEmbedForRarity)
