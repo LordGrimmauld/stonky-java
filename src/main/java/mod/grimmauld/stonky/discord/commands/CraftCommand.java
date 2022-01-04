@@ -7,7 +7,6 @@ import mod.grimmauld.stonky.discord.GrimmSlashCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import org.apache.commons.lang3.text.StrBuilder;
 
 import java.util.Comparator;
@@ -26,11 +25,11 @@ public class CraftCommand extends GrimmSlashCommand {
 
 	@Override
 	public void execute(SlashCommandEvent event) {
-		sendResponse(event, "Creating thread", true);
-		trySendInThread(event.getChannel(), channel -> CONSIDERED_CRAFTABLE.stream()
+		sendResponse(event, "Creating thread...", true);
+		trySendInThread("Crafting", event.getChannel(), event.getMember() , channel -> CONSIDERED_CRAFTABLE.stream()
 			.map(this::createEmbedForRarity)
 			.map(channel::sendMessageEmbeds)
-			.forEach(MessageAction::queue)); // TODO: store message to update later
+			.forEach(message -> message.queue(this::storeForUpdates)));
 	}
 
 	private MessageEmbed createEmbedForRarity(Rarity rarity) {

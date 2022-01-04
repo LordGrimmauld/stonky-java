@@ -1,15 +1,16 @@
 package mod.grimmauld.stonky.discord;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.IThreadContainer;
-import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.function.Consumer;
+
+import static mod.grimmauld.stonky.util.FunctionUtils.asPredicate;
+import static mod.grimmauld.stonky.util.FunctionUtils.bundle;
 
 public abstract class GrimmSlashCommand {
 	@Nullable
@@ -59,11 +60,23 @@ public abstract class GrimmSlashCommand {
 
 	public abstract void execute(SlashCommandEvent event);
 
-	protected void trySendInThread(MessageChannel original, Consumer<MessageChannel> forChannel) {
+	protected void trySendInThread(String threadName, MessageChannel original, Member member, Consumer<? super MessageChannel> forChannel) {
 		if (original instanceof IThreadContainer guildMessageChannel) {
-			guildMessageChannel.createThreadChannel("Crafting").queue(forChannel);
+			// Try to find an appropriate thread
+			if (guildMessageChannel.getThreadChannels()
+				.stream()
+				.filter(threadChannel -> threadChannel.getName().equals(threadName))
+				.limit(1)
+				.noneMatch(asPredicate(bundle(forChannel, threadChannel -> threadChannel.addThreadMember(member).queue()))))
+				// If no thread found, make a new one
+				guildMessageChannel.createThreadChannel(threadName)
+					.queue(bundle(forChannel, threadChannel -> threadChannel.addThreadMember(member).queue()));
 		} else {
 			forChannel.accept(original);
 		}
+	}
+
+	public void storeForUpdates(Message message) {
+		// message.pin().queue();
 	}
 }
