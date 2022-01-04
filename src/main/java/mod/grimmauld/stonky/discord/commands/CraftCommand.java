@@ -5,7 +5,9 @@ import mod.grimmauld.stonky.data.Rarity;
 import mod.grimmauld.stonky.data.TradeElement;
 import mod.grimmauld.stonky.discord.GrimmSlashCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.ThreadChannel;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.apache.commons.lang3.text.StrBuilder;
@@ -27,12 +29,15 @@ public class CraftCommand extends GrimmSlashCommand {
 	@Override
 	public void execute(SlashCommandEvent event) {
 		sendResponse(event, "Creating thread...", true);
-		trySendInThread("Crafting", event.getChannel(), event.getMember(),
-			channel -> CONSIDERED_CRAFTABLE.stream()
-				.map(this::createEmbedForRarity)
-				.map(channel::sendMessageEmbeds)
-				.map(RestAction::complete)
-				.forEach(this::storeForUpdates));
+		event.getMember();
+		MessageChannel channel = getOrCreateThread("Crafting", event.getChannel());
+		CONSIDERED_CRAFTABLE.stream()
+			.map(this::createEmbedForRarity)
+			.map(channel::sendMessageEmbeds)
+			.map(RestAction::complete)
+			.forEach(this::storeForUpdates);
+		if (channel instanceof ThreadChannel threadChannel)
+			threadChannel.addThreadMember(event.getUser()).queue();
 	}
 
 	private MessageEmbed createEmbedForRarity(Rarity rarity) {
