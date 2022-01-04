@@ -5,7 +5,9 @@ import mod.grimmauld.stonky.data.Rarity;
 import mod.grimmauld.stonky.data.TradeElement;
 import mod.grimmauld.stonky.discord.GrimmSlashCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import org.apache.commons.lang3.text.StrBuilder;
 
 import java.util.Comparator;
@@ -24,24 +26,30 @@ public class CraftCommand extends GrimmSlashCommand {
 
 	@Override
 	public void execute(SlashCommandEvent event) {
-		CONSIDERED_CRAFTABLE.forEach(rarity -> {
-			EmbedBuilder eb = new EmbedBuilder();
-			eb.setTitle("Crafting " + rarity.rarityName + " parts", "https://crossoutdb.com/#preset=crafting.rarity=" + rarity.rarityName.toLowerCase() + ".craftable=true");
-			eb.setColor(rarity.color);
-			dataManager.factionManager.getFactions().forEach((factionId, factionName) -> {
-				StrBuilder parts = new StrBuilder();
-				dataManager.getTradeElements()
-					.stream()
-					.filter(rarity::contains)
-					.filter(TradeElement::isCraftable)
-					.filter(tradeElement -> tradeElement.getFactionNumber() == factionId)
-					.sorted(Comparator.comparing(TradeElement::getCraftingMargin).reversed())
-					.limit(5)
-					.forEach(tradeElement -> parts.appendln(tradeElement.getLocalizedName() + ": " + tradeElement.getFormatCraftingMargin()));
-				if (!parts.isEmpty())
-					eb.addField(factionName, parts.toString(), true);
-			});
-			event.getChannel().sendMessageEmbeds(eb.build()).submit();
+		sendResponse(event, "Creating thread", true);
+		trySendInThread(event.getChannel(), channel -> CONSIDERED_CRAFTABLE.stream()
+			.map(this::createEmbedForRarity)
+			.map(channel::sendMessageEmbeds)
+			.forEach(MessageAction::queue)); // TODO: store message to update later
+	}
+
+	private MessageEmbed createEmbedForRarity(Rarity rarity) {
+		EmbedBuilder eb = new EmbedBuilder();
+		eb.setTitle("Crafting " + rarity.rarityName + " parts", "https://crossoutdb.com/#preset=crafting.rarity=" + rarity.rarityName.toLowerCase() + ".craftable=true");
+		eb.setColor(rarity.color);
+		dataManager.factionManager.getFactions().forEach((factionId, factionName) -> {
+			StrBuilder parts = new StrBuilder();
+			dataManager.getTradeElements()
+				.stream()
+				.filter(rarity::contains)
+				.filter(TradeElement::isCraftable)
+				.filter(tradeElement -> tradeElement.getFactionNumber() == factionId)
+				.sorted(Comparator.comparing(TradeElement::getCraftingMargin).reversed())
+				.limit(5)
+				.forEach(tradeElement -> parts.appendln(tradeElement.getLocalizedName() + ": " + tradeElement.getFormatCraftingMargin()));
+			if (!parts.isEmpty())
+				eb.addField(factionName, parts.toString(), true);
 		});
+		return eb.build();
 	}
 }

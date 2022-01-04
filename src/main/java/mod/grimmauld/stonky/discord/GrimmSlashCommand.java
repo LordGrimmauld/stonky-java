@@ -1,12 +1,15 @@
 package mod.grimmauld.stonky.discord;
 
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.IThreadContainer;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.function.Consumer;
 
 public abstract class GrimmSlashCommand {
 	@Nullable
@@ -55,4 +58,12 @@ public abstract class GrimmSlashCommand {
 	}
 
 	public abstract void execute(SlashCommandEvent event);
+
+	protected void trySendInThread(MessageChannel original, Consumer<MessageChannel> forChannel) {
+		if (original instanceof IThreadContainer guildMessageChannel) {
+			guildMessageChannel.createThreadChannel("Crafting").queue(forChannel);
+		} else {
+			forChannel.accept(original);
+		}
+	}
 }
