@@ -19,6 +19,14 @@ public enum Rarity {
 		color = new Color(r, g, b);
 	}
 
+	public static Rarity byName(String name) {
+		for (Rarity rarity : Rarity.values()) {
+			if (rarity.rarityName.equals(name))
+				return rarity;
+		}
+		return Rarity.COMMON;
+	}
+
 	public boolean contains(TradeElement tradeElement) {
 		return rarityName.equals(tradeElement.getRarityName());
 	}
