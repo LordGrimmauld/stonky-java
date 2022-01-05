@@ -2,11 +2,13 @@ package mod.grimmauld.stonky.discord.commands;
 
 import mod.grimmauld.stonky.data.DataManager;
 import mod.grimmauld.stonky.data.Rarity;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.jetbrains.annotations.Nullable;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -35,7 +37,15 @@ public abstract class RarityBasedUpdateBoardCommand extends UpdateBoardCommand {
 			.forEach(this::storeForUpdates);
 	}
 
-	protected abstract MessageEmbed createEmbedForRarity(Rarity rarity);
+	private MessageEmbed createEmbedForRarity(Rarity rarity) {
+		EmbedBuilder eb = new EmbedBuilder();
+		eb.setColor(rarity.color);
+		eb.setFooter("Updated <t:" + Instant.now().getEpochSecond() + ":R>");
+		populateEmbedForRarity(eb, rarity);
+		return eb.build();
+	}
+
+	protected abstract void populateEmbedForRarity(EmbedBuilder eb, Rarity rarity);
 
 	protected String titleForRarity(Rarity rarity) {
 		return threadName + " " + rarity.rarityName + " parts";

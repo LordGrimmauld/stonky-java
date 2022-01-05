@@ -2,7 +2,6 @@ package mod.grimmauld.stonky.data;
 
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +18,7 @@ public class FactionManager {
 		cachedFactions = dataManager.getTradeElements().stream().filter(tradeElement -> tradeElement.getFaction() != null)
 			.map(te -> ImmutablePair.of(te.getFactionNumber(), te.getFaction()))
 			.distinct()
-			.collect(Collectors.toMap(Pair::getKey, Pair::getValue));
+			.collect(Collectors.toMap(ImmutablePair::getLeft, ImmutablePair::getRight));
 	}
 
 	public Map<Integer, String> getFactions() {

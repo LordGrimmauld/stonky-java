@@ -4,7 +4,6 @@ import mod.grimmauld.stonky.data.DataManager;
 import mod.grimmauld.stonky.data.Rarity;
 import mod.grimmauld.stonky.data.TradeElement;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.apache.commons.lang3.text.StrBuilder;
 
 import java.util.Comparator;
@@ -18,10 +17,9 @@ public class CraftCommand extends RarityBasedUpdateBoardCommand {
 		super(name, "Crafting", "Get info on part crafting", dataManager, Set.of(RARE, SPECIAL, EPIC, LEGENDARY));
 	}
 
-	protected MessageEmbed createEmbedForRarity(Rarity rarity) {
-		EmbedBuilder eb = new EmbedBuilder();
+	@Override
+	protected void populateEmbedForRarity(EmbedBuilder eb, Rarity rarity) {
 		eb.setTitle(titleForRarity(rarity), "https://crossoutdb.com/#preset=crafting.rarity=" + rarity.rarityName.toLowerCase() + ".craftable=true");
-		eb.setColor(rarity.color);
 		dataManager.factionManager.getFactions().forEach((factionId, factionName) -> {
 			StrBuilder parts = new StrBuilder();
 			dataManager.getTradeElements()
@@ -36,6 +34,5 @@ public class CraftCommand extends RarityBasedUpdateBoardCommand {
 			if (!parts.isEmpty())
 				eb.addField(factionName, parts.toString(), true);
 		});
-		return eb.build();
 	}
 }
