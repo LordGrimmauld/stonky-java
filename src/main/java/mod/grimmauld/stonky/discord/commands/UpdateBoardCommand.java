@@ -1,7 +1,6 @@
 package mod.grimmauld.stonky.discord.commands;
 
 import mod.grimmauld.stonky.Main;
-import mod.grimmauld.stonky.data.DataManager;
 import mod.grimmauld.stonky.discord.GrimmSlashCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -19,17 +18,13 @@ public abstract class UpdateBoardCommand extends GrimmSlashCommand {
 	public final String threadName;
 	protected final String titleRegex;
 
-	protected UpdateBoardCommand(String name, String threadName, @Nullable String help) {
-		this(name, threadName, threadName, help);
-	}
-
 	protected UpdateBoardCommand(String name, String threadName, String titleRegex, @Nullable String help) {
 		super(name, help);
 		this.threadName = threadName;
 		this.titleRegex = titleRegex;
 	}
 
-	public static void updateBoards(DataManager dataManager) {
+	public static void updateBoards() {
 		JDA jda = Main.DISCORD_BOT.getJda();
 		if (jda == null)
 			return;
@@ -38,10 +33,10 @@ public abstract class UpdateBoardCommand extends GrimmSlashCommand {
 			.map(UpdateBoardCommand.class::cast)
 			.collect(Collectors.toSet());
 		Stream.concat(jda.getPrivateChannels().stream(),
-			jda.getThreadChannels()
-				.stream()
-				.filter(ThreadChannel::isOwner)
-				.filter(threadChannel -> updateBoardCommands.stream().anyMatch(updateBoardCommand -> updateBoardCommand.threadName.equals(threadChannel.getName()))))
+				jda.getThreadChannels()
+					.stream()
+					.filter(ThreadChannel::isOwner)
+					.filter(threadChannel -> updateBoardCommands.stream().anyMatch(updateBoardCommand -> updateBoardCommand.threadName.equals(threadChannel.getName()))))
 			.map(MessageChannel::retrievePinnedMessages)
 			.map(RestAction::complete)
 			.flatMap(List::stream)
@@ -60,7 +55,8 @@ public abstract class UpdateBoardCommand extends GrimmSlashCommand {
 	}
 
 	protected MessageChannel getOrCreateThread(MessageChannel original) {
-		if (original instanceof IThreadContainer guildMessageChannel)
+		if ((original instanceof ThreadChannel threadChannel1 ? threadChannel1.getParentMessageChannel() : original)
+			instanceof IThreadContainer guildMessageChannel)
 			return guildMessageChannel.getThreadChannels()
 				.stream()
 				.filter(threadChannel -> threadChannel.getName().equals(threadName))
@@ -88,10 +84,12 @@ public abstract class UpdateBoardCommand extends GrimmSlashCommand {
 	protected abstract MessageEmbed createEmbedForTitle(String title);
 
 	public void tryUpdateEmbeds(Message message) {
-		message.editMessageEmbeds(message.getEmbeds()
+		List<MessageEmbed> newEmbeds = message.getEmbeds()
 			.stream()
 			.filter(this::matchesTitleRegex)
 			.map(this::getUpdatedEmbed)
-			.toList()).submit();
+			.toList();
+		if (!newEmbeds.isEmpty())
+			message.editMessageEmbeds(newEmbeds).submit();
 	}
 }

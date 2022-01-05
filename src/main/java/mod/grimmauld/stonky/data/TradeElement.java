@@ -2,6 +2,8 @@ package mod.grimmauld.stonky.data;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.util.function.Predicate;
+
 @SuppressWarnings("unused")
 public class TradeElement {
 	private int id;
@@ -52,6 +54,10 @@ public class TradeElement {
 	private int meta;
 	private int removed;
 	private int craftable;
+
+	public static Predicate<TradeElement> matchesById(int id) {
+		return tradeElement -> tradeElement.id == id;
+	}
 
 	public int getId() {
 		return id;
@@ -225,5 +231,9 @@ public class TradeElement {
 			", name='" + name + '\'' +
 			", faction='" + faction + '\'' +
 			'}';
+	}
+
+	public String getStrippedName() {
+		return getLocalizedName().replaceAll(" x[0-9]+", "");
 	}
 }

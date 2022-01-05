@@ -19,13 +19,14 @@ public class Main {
 		.register(new GithubCommand("github"))
 		.register(new VersionCommand("version"))
 		.register(new InviteCommand("invite"))
-		.register(new CraftCommand("craft", DATA_MANAGER));
+		.register(new CraftCommand("craft", DATA_MANAGER))
+		.register(new SalvageCommand("salvage", DATA_MANAGER));
 	public static final DiscordBot DISCORD_BOT = new DiscordBot(COMMAND_REGISTRY);
 	private static final ScheduledExecutorService SCHEDULER = Executors.newSingleThreadScheduledExecutor();
 
 	public static void main(String[] args) {
 		// DATA_MANAGER.registerRefreshCallback(dataManager -> dataManager.getTradeElements().stream().map(TradeElement::toString).forEach(LOGGER::info));
-		DATA_MANAGER.registerRefreshCallback(UpdateBoardCommand::updateBoards);
+		DATA_MANAGER.registerRefreshCallback(dataManager -> UpdateBoardCommand.updateBoards());
 		SCHEDULER.scheduleAtFixedRate(DATA_MANAGER::refreshCache, 0, 5, TimeUnit.MINUTES);
 	}
 }

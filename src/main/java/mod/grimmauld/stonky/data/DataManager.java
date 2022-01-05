@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonParser;
 import mod.grimmauld.stonky.Main;
 import org.apache.commons.io.IOUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.net.URL;
@@ -42,6 +43,15 @@ public class DataManager {
 			.filter(Objects::nonNull)
 			.collect(Collectors.toSet());
 		refreshCallbacks.forEach(setConsumer -> setConsumer.accept(this));
+	}
+
+	@Nullable
+	public TradeElement getById(int id) {
+		return getTradeElements()
+			.stream()
+			.filter(TradeElement.matchesById(id))
+			.findFirst()
+			.orElse(null);
 	}
 
 	public Set<TradeElement> getTradeElements() {
