@@ -29,9 +29,8 @@ public class DiscordBot extends ListenerAdapter {
 	@Override
 	public void onReady(@NotNull ReadyEvent event) {
 		super.onReady(event);
-		event.getJDA()
-			.getGuilds()
-			.forEach(guild -> commandRegistry.stream().forEach(grimmSlashCommand -> guild.upsertCommand(grimmSlashCommand.getCommandData()).submit()));
+		commandRegistry.stream()
+			.forEach(grimmSlashCommand -> event.getJDA().upsertCommand(grimmSlashCommand.getCommandData()).submit());
 	}
 
 	@Override
