@@ -40,7 +40,7 @@ public abstract class RarityBasedUpdateBoardCommand extends UpdateBoardCommand {
 	private MessageEmbed createEmbedForRarity(Rarity rarity) {
 		EmbedBuilder eb = new EmbedBuilder();
 		eb.setColor(rarity.color);
-		eb.setFooter("Updated <t:" + Instant.now().getEpochSecond() + ":R>");
+		eb.setTimestamp(Instant.now());
 		populateEmbedForRarity(eb, rarity);
 		return eb.build();
 	}
