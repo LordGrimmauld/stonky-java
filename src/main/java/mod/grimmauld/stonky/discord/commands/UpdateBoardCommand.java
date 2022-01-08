@@ -2,6 +2,7 @@ package mod.grimmauld.stonky.discord.commands;
 
 import mod.grimmauld.stonky.Main;
 import mod.grimmauld.stonky.discord.GrimmSlashCommand;
+import mod.grimmauld.stonky.util.StreamUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
@@ -15,7 +16,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public abstract class UpdateBoardCommand extends GrimmSlashCommand {
-	public final String threadName;
+	protected final String threadName;
 	protected final String titleRegex;
 
 	protected UpdateBoardCommand(String name, String threadName, String titleRegex, @Nullable String help) {
@@ -36,7 +37,15 @@ public abstract class UpdateBoardCommand extends GrimmSlashCommand {
 				jda.getThreadChannels()
 					.stream()
 					.filter(ThreadChannel::isOwner)
-					.filter(threadChannel -> updateBoardCommands.stream().anyMatch(updateBoardCommand -> updateBoardCommand.threadName.equals(threadChannel.getName()))))
+					.filter(threadChannel -> updateBoardCommands.stream()
+						.map(UpdateBoardCommand::getThreadName)
+						.anyMatch(threadChannel.getName()::equals))
+					.filter(StreamUtils.distinctByKey(ThreadChannel::getName))
+					.peek(threadChannel -> {
+						if (threadChannel.isArchived()) {
+							threadChannel.getManager().setArchived(false).complete();
+						}
+					}))
 			.map(MessageChannel::retrievePinnedMessages)
 			.map(RestAction::complete)
 			.flatMap(List::stream)
@@ -91,5 +100,9 @@ public abstract class UpdateBoardCommand extends GrimmSlashCommand {
 			.toList();
 		if (!newEmbeds.isEmpty())
 			message.editMessageEmbeds(newEmbeds).submit();
+	}
+
+	public String getThreadName() {
+		return threadName;
 	}
 }
