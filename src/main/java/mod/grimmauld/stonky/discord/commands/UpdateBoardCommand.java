@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.requests.restaction.pagination.PaginationAction;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -34,23 +35,23 @@ public abstract class UpdateBoardCommand extends GrimmSlashCommand {
 			.map(UpdateBoardCommand.class::cast)
 			.collect(Collectors.toSet());
 		Stream.concat(jda.getPrivateChannels().stream(),
-				// jda.getThreadChannels().stream()
-				jda.getGuilds()
-					.stream()
-					.map(Guild::getTextChannels)
-					.flatMap(List::stream)
-					.map(TextChannel::getThreadChannels)
-					.flatMap(List::stream)
+				Stream.concat(
+						jda.getThreadChannels().stream(),
+						jda.getGuilds()
+							.stream()
+							.map(Guild::getTextChannels)
+							.flatMap(List::stream)
+							.map(IThreadContainer.class::cast)
+							.map(IThreadContainer::retrieveArchivedPublicThreadChannels)
+							.flatMap(PaginationAction::stream)
+							.peek(threadChannel -> threadChannel.getManager().setArchived(false).complete())
+					)
 					.filter(ThreadChannel::isOwner)
 					.filter(threadChannel -> updateBoardCommands.stream()
 						.map(UpdateBoardCommand::getThreadName)
 						.anyMatch(threadChannel.getName()::equals))
 					.filter(StreamUtils.distinctByKey(ThreadChannel::getName))
-					.peek(threadChannel -> {
-						if (threadChannel.isArchived()) {
-							threadChannel.getManager().setArchived(false).complete();
-						}
-					}))
+			)
 			.map(MessageChannel::retrievePinnedMessages)
 			.map(RestAction::complete)
 			.flatMap(List::stream)
