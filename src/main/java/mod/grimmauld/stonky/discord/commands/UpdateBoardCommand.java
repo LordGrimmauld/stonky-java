@@ -34,8 +34,13 @@ public abstract class UpdateBoardCommand extends GrimmSlashCommand {
 			.map(UpdateBoardCommand.class::cast)
 			.collect(Collectors.toSet());
 		Stream.concat(jda.getPrivateChannels().stream(),
-				jda.getThreadChannels()
+				// jda.getThreadChannels().stream()
+				jda.getGuilds()
 					.stream()
+					.map(Guild::getTextChannels)
+					.flatMap(List::stream)
+					.map(TextChannel::getThreadChannels)
+					.flatMap(List::stream)
 					.filter(ThreadChannel::isOwner)
 					.filter(threadChannel -> updateBoardCommands.stream()
 						.map(UpdateBoardCommand::getThreadName)
