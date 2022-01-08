@@ -7,10 +7,13 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.pagination.PaginationAction;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public abstract class UpdateBoardCommand extends GrimmSlashCommand {
@@ -27,34 +30,33 @@ public abstract class UpdateBoardCommand extends GrimmSlashCommand {
 		JDA jda = Main.DISCORD_BOT.getJda();
 		if (jda == null)
 			return;
+		Set<UpdateBoardCommand> updateBoardCommands = Main.COMMAND_REGISTRY.stream()
+			.filter(UpdateBoardCommand.class::isInstance)
+			.map(UpdateBoardCommand.class::cast)
+			.collect(Collectors.toSet());
 		Stream.concat(jda.getPrivateChannels().stream(),
 				Stream.concat(
 						jda.getThreadChannels().stream(),
 						jda.getGuilds()
 							.stream()
 							.map(Guild::getTextChannels)
-							.flatMap(Collection::stream)
+							.flatMap(List::stream)
+							.map(IThreadContainer.class::cast)
 							.map(IThreadContainer::retrieveArchivedPublicThreadChannels)
 							.flatMap(PaginationAction::stream)
+							.peek(threadChannel -> threadChannel.getManager().setArchived(false).complete())
 					)
 					.filter(ThreadChannel::isOwner)
-					.filter(StreamUtils.distinctByKey(ThreadChannel::getName))
-					.filter(threadChannel -> Main.COMMAND_REGISTRY.stream()
-						.filter(UpdateBoardCommand.class::isInstance)
-						.map(UpdateBoardCommand.class::cast)
+					.filter(threadChannel -> updateBoardCommands.stream()
 						.map(UpdateBoardCommand::getThreadName)
 						.anyMatch(threadChannel.getName()::equals))
-					.peek(threadChannel -> {
-						if (threadChannel.isArchived())
-							threadChannel.getManager().setArchived(false).queue();
-					})
+					.filter(StreamUtils.distinctByKey(ThreadChannel::getName))
 			)
 			.map(MessageChannel::retrievePinnedMessages)
-			.forEach(listRestAction -> listRestAction.queue(collection -> collection.stream().filter(message -> message.getAuthor().equals(jda.getSelfUser()))
-				.forEach(message -> Main.COMMAND_REGISTRY.stream()
-					.filter(UpdateBoardCommand.class::isInstance)
-					.map(UpdateBoardCommand.class::cast)
-					.forEach(updateBoardCommand -> updateBoardCommand.tryUpdateEmbeds(message)))));
+			.map(RestAction::complete)
+			.flatMap(List::stream)
+			.filter(message -> message.getAuthor().equals(jda.getSelfUser()))
+			.forEach(message -> updateBoardCommands.forEach(updateBoardCommand -> updateBoardCommand.tryUpdateEmbeds(message)));
 	}
 
 
@@ -97,7 +99,7 @@ public abstract class UpdateBoardCommand extends GrimmSlashCommand {
 	protected abstract MessageEmbed createEmbedForTitle(String title);
 
 	public void tryUpdateEmbeds(Message message) {
-		Collection<MessageEmbed> newEmbeds = message.getEmbeds()
+		List<MessageEmbed> newEmbeds = message.getEmbeds()
 			.stream()
 			.filter(this::matchesTitleRegex)
 			.map(this::getUpdatedEmbed)
