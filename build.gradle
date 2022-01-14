@@ -28,15 +28,22 @@ sourceSets {
     main.resources.srcDir 'src/main/resources'
 }
 
+configurations {
+    // configuration that holds jars to include in the jar
+    extraLibs
+}
+
 dependencies {
     implementation 'org.jetbrains:annotations:22.0.0'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
-    implementation 'com.google.code.gson:gson:2.8.9'
-    implementation 'commons-io:commons-io:2.11.0'
-    implementation "net.dv8tion:JDA:$jda_version"
-    implementation group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.32'
-    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.0'
+    configurations.implementation.extendsFrom(configurations.extraLibs)
+    extraLibs 'com.google.code.gson:gson:2.8.9'
+    extraLibs 'commons-io:commons-io:2.11.0'
+    extraLibs "net.dv8tion:JDA:$jda_version"
+    // implementation group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.32'
+    extraLibs('ch.qos.logback:logback-classic:1.2.10')
+    extraLibs group: 'org.apache.commons', name: 'commons-lang3', version: '3.0'
 }
 
 compileJava.options.encoding = 'UTF-8'
@@ -46,7 +53,7 @@ test {
 }
 
 jar {
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
         attributes([
                 "Specification-Title"     : appid,
@@ -60,8 +67,12 @@ jar {
         ])
     }
     from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+        configurations.extraLibs.collect { it.isDirectory() ? it : zipTree(it) }
     }
+}
+
+processResources {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 def getGitHash = { ->
@@ -134,7 +145,6 @@ buildConfig {
             props.load(it)
             buildConfigField "String", "DISCORD_TOKEN", "\"${props.token}\""
             buildConfigField "String", "INVITE", "\"${props.invite}\""
-            buildConfigField "String", "OWNER", "\"${props.owner}\""
             buildConfigField "String", "GITHUB", "\"${props.github}\""
         }
     }
