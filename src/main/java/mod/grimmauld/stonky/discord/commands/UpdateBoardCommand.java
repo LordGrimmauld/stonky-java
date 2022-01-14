@@ -8,7 +8,8 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.requests.RestAction;
-import net.dv8tion.jda.api.requests.restaction.pagination.PaginationAction;
+import net.dv8tion.jda.api.utils.cache.SortedSnowflakeCacheView;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -34,29 +35,37 @@ public abstract class UpdateBoardCommand extends GrimmSlashCommand {
 			.filter(UpdateBoardCommand.class::isInstance)
 			.map(UpdateBoardCommand.class::cast)
 			.collect(Collectors.toSet());
-		Stream.concat(jda.getPrivateChannels().stream(),
-				Stream.concat(
-						jda.getThreadChannels().stream(),
-						jda.getGuilds()
-							.stream()
-							.map(Guild::getTextChannels)
-							.flatMap(List::stream)
-							.map(IThreadContainer.class::cast)
-							.map(IThreadContainer::retrieveArchivedPublicThreadChannels)
-							.flatMap(PaginationAction::stream)
-							.peek(threadChannel -> threadChannel.getManager().setArchived(false).complete())
-					)
+		Stream.concat(jda.getPrivateChannelCache().parallelStream(),
+				getAllThreads(jda)
 					.filter(ThreadChannel::isOwner)
 					.filter(threadChannel -> updateBoardCommands.stream()
 						.map(UpdateBoardCommand::getThreadName)
 						.anyMatch(threadChannel.getName()::equals))
 					.filter(StreamUtils.distinctByKey(ThreadChannel::getName))
+					.peek(threadChannel -> {
+						if (threadChannel.isArchived())
+							threadChannel.getManager().setArchived(false).complete();
+					})
 			)
 			.map(MessageChannel::retrievePinnedMessages)
 			.map(RestAction::complete)
 			.flatMap(List::stream)
 			.filter(message -> message.getAuthor().equals(jda.getSelfUser()))
 			.forEach(message -> updateBoardCommands.forEach(updateBoardCommand -> updateBoardCommand.tryUpdateEmbeds(message)));
+	}
+
+	@NotNull
+	private static Stream<ThreadChannel> getAllThreads(JDA jda) {
+		return Stream.concat(
+			jda.getThreadChannelCache().parallelStream(),
+			jda.getGuildCache()
+				.parallelStream()
+				.map(Guild::getTextChannelCache)
+				.flatMap(SortedSnowflakeCacheView::parallelStreamUnordered)
+				.map(IThreadContainer::retrieveArchivedPublicThreadChannels)
+				.map(RestAction::complete)
+				.flatMap(List::stream)
+		);
 	}
 
 

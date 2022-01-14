@@ -22,7 +22,8 @@ public class DiscordBot extends ListenerAdapter {
 		this.commandRegistry = commandRegistry;
 		try {
 			jda = JDABuilder.createDefault(BuildConfig.DISCORD_TOKEN).addEventListeners(this).build();
-		} catch (LoginException e) {
+			jda.awaitReady();
+		} catch (LoginException | InterruptedException e) {
 			Main.LOGGER.error("Can't start discord bot", e);
 			e.printStackTrace();
 			System.exit(0);
