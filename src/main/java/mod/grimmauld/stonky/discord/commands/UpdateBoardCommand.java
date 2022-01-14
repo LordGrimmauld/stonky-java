@@ -2,19 +2,13 @@ package mod.grimmauld.stonky.discord.commands;
 
 import mod.grimmauld.stonky.Main;
 import mod.grimmauld.stonky.discord.GrimmSlashCommand;
-import mod.grimmauld.stonky.util.StreamUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.requests.RestAction;
-import net.dv8tion.jda.api.utils.cache.SortedSnowflakeCacheView;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public abstract class UpdateBoardCommand extends GrimmSlashCommand {
@@ -31,43 +25,23 @@ public abstract class UpdateBoardCommand extends GrimmSlashCommand {
 		JDA jda = Main.DISCORD_BOT.getJda();
 		if (jda == null)
 			return;
-		Set<UpdateBoardCommand> updateBoardCommands = Main.COMMAND_REGISTRY.stream()
-			.filter(UpdateBoardCommand.class::isInstance)
-			.map(UpdateBoardCommand.class::cast)
-			.collect(Collectors.toSet());
-		Stream.concat(jda.getPrivateChannelCache().parallelStream(),
-				getAllThreads(jda)
-					.filter(ThreadChannel::isOwner)
-					.filter(threadChannel -> updateBoardCommands.stream()
-						.map(UpdateBoardCommand::getThreadName)
-						.anyMatch(threadChannel.getName()::equals))
-					.filter(StreamUtils.distinctByKey(ThreadChannel::getName))
-					.peek(threadChannel -> {
-						if (threadChannel.isArchived())
-							threadChannel.getManager().setArchived(false).complete();
-					})
-			)
-			.map(MessageChannel::retrievePinnedMessages)
-			.map(RestAction::complete)
-			.flatMap(List::stream)
-			.filter(message -> message.getAuthor().equals(jda.getSelfUser()))
-			.forEach(message -> updateBoardCommands.forEach(updateBoardCommand -> updateBoardCommand.tryUpdateEmbeds(message)));
+		jda.getPrivateChannelCache().forEach(UpdateBoardCommand::updateMessagesInChannel);
+		executeInAllThreads(jda, threadChannel -> {
+			if (getUpdateBoardCommandStream().map(UpdateBoardCommand::getThreadName).noneMatch(threadChannel.getName()::equals))
+				return;
+			if (threadChannel.isArchived())
+				threadChannel.getManager().setArchived(false).queue();
+			updateMessagesInChannel(threadChannel);
+		});
 	}
 
-	@NotNull
-	private static Stream<ThreadChannel> getAllThreads(JDA jda) {
-		return Stream.concat(
-			jda.getThreadChannelCache().parallelStream(),
-			jda.getGuildCache()
-				.parallelStream()
-				.map(Guild::getTextChannelCache)
-				.flatMap(SortedSnowflakeCacheView::parallelStreamUnordered)
-				.map(IThreadContainer::retrieveArchivedPublicThreadChannels)
-				.map(RestAction::complete)
-				.flatMap(List::stream)
-		);
+	private static void updateMessagesInChannel(MessageChannel channel) {
+		channel.retrievePinnedMessages().queue(messages -> messages.stream().filter(message -> message.getAuthor().equals(channel.getJDA().getSelfUser())).forEach(message -> getUpdateBoardCommandStream().forEach(updateBoardCommand -> updateBoardCommand.tryUpdateEmbeds(message))));
 	}
 
+	private static Stream<UpdateBoardCommand> getUpdateBoardCommandStream() {
+		return Main.COMMAND_REGISTRY.getCommandsOfType(UpdateBoardCommand.class);
+	}
 
 	@Override
 	public void execute(SlashCommandEvent event) {

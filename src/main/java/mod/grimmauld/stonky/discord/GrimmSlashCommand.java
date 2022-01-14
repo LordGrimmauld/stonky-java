@@ -1,13 +1,17 @@
 package mod.grimmauld.stonky.discord;
 
+import mod.grimmauld.stonky.util.StreamUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public abstract class GrimmSlashCommand {
 	@Nullable
@@ -17,6 +21,16 @@ public abstract class GrimmSlashCommand {
 	protected GrimmSlashCommand(String name, @Nullable String help) {
 		this.help = help;
 		this.name = name;
+	}
+
+	protected static void executeInAllThreads(JDA jda, Consumer<? super ThreadChannel> consumer) {
+		jda.getThreadChannelCache().stream().filter(ThreadChannel::isOwner).forEach(consumer);
+		jda.getTextChannelCache().stream().filter(hasPermissionIn(Permission.MESSAGE_HISTORY))
+			.map(IThreadContainer::retrieveArchivedPublicThreadChannels).forEach(c -> c.queue(l -> l.stream().filter(ThreadChannel::isOwner).filter(StreamUtils.distinctByKey(ThreadChannel::getName)).forEach(consumer)));
+	}
+
+	protected static Predicate<GuildChannel> hasPermissionIn(Permission permission) {
+		return channel -> channel.getGuild().getSelfMember().hasPermission(channel.getPermissionContainer(), permission);
 	}
 
 	protected void sendResponse(SlashCommandEvent event, String msg, boolean ephemeral) {
