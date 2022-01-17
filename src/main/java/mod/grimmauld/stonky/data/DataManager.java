@@ -21,6 +21,7 @@ public class DataManager {
 	public final FactionManager factionManager;
 	private final Set<Consumer<DataManager>> refreshCallbacks = new HashSet<>();
 	private Set<TradeElement> tradeElements = new HashSet<>();
+	public final CrateManager crateManager = new CrateManager();
 
 	public DataManager() {
 		factionManager = new FactionManager(this);
@@ -50,6 +51,15 @@ public class DataManager {
 		return getTradeElements()
 			.stream()
 			.filter(TradeElement.matchesById(id))
+			.findFirst()
+			.orElse(null);
+	}
+
+	@Nullable
+	public TradeElement getByName(String localizedName) {
+		return getTradeElements()
+			.stream()
+			.filter(TradeElement.matchesByLocalizedName(localizedName))
 			.findFirst()
 			.orElse(null);
 	}

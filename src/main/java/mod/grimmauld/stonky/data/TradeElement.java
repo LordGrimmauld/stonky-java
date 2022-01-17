@@ -59,6 +59,10 @@ public class TradeElement {
 		return tradeElement -> tradeElement.id == id;
 	}
 
+	public static Predicate<TradeElement> matchesByLocalizedName(String localizedName) {
+		return tradeElement -> localizedName.equals(tradeElement.localizedName);
+	}
+
 	public int getId() {
 		return id;
 	}
@@ -235,5 +239,9 @@ public class TradeElement {
 
 	public String getStrippedName() {
 		return getLocalizedName().replaceAll(" x[0-9]+", "");
+	}
+
+	public double getEffectiveCost() {
+		return sellPrice / (amount * 100);
 	}
 }

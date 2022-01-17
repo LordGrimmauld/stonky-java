@@ -1,5 +1,6 @@
 package mod.grimmauld.stonky;
 
+import mod.grimmauld.stonky.data.CrateManager;
 import mod.grimmauld.stonky.data.DataManager;
 import mod.grimmauld.stonky.discord.CommandRegistry;
 import mod.grimmauld.stonky.discord.DiscordBot;
@@ -20,7 +21,8 @@ public class Main {
 		.register(new VersionCommand("version"))
 		.register(new InviteCommand("invite"))
 		.register(new CraftCommand("craft", DATA_MANAGER))
-		.register(new SalvageCommand("salvage", DATA_MANAGER));
+		.register(new SalvageCommand("salvage", DATA_MANAGER))
+		.register(new CrateCommand("crate", DATA_MANAGER));
 	public static final DiscordBot DISCORD_BOT = new DiscordBot(COMMAND_REGISTRY);
 	private static final ScheduledExecutorService SCHEDULER = Executors.newSingleThreadScheduledExecutor();
 

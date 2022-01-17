@@ -19,7 +19,7 @@ public class CraftCommand extends RarityBasedUpdateBoardCommand {
 
 	@Override
 	protected void populateEmbedForRarity(EmbedBuilder eb, Rarity rarity) {
-		eb.setTitle(titleForRarity(rarity), "https://crossoutdb.com/#preset=crafting.rarity=" + rarity.rarityName.toLowerCase() + ".craftable=true");
+		eb.setTitle(titleForRarity(rarity), "https://crossoutdb.com/#preset=crafting.rarity=" + rarity.rarityName.toLowerCase() + ".craftable=true.order=20desc");
 		dataManager.factionManager.getFactions().forEach((factionId, factionName) -> {
 			StrBuilder parts = new StrBuilder();
 			dataManager.getTradeElements()

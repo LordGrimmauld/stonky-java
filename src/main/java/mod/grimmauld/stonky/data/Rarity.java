@@ -1,6 +1,7 @@
 package mod.grimmauld.stonky.data;
 
 import java.awt.*;
+import java.util.Arrays;
 
 @SuppressWarnings("unused")
 public enum Rarity {
@@ -25,6 +26,10 @@ public enum Rarity {
 				return rarity;
 		}
 		return Rarity.COMMON;
+	}
+
+	public static Rarity fromTradeElement(TradeElement tradeElement) {
+		return Arrays.stream(values()).filter(rarity -> rarity.contains(tradeElement)).findFirst().orElse(COMMON);
 	}
 
 	public boolean contains(TradeElement tradeElement) {
