@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -31,6 +32,14 @@ public abstract class GrimmSlashCommand {
 
 	protected static Predicate<GuildChannel> hasPermissionIn(Permission permission) {
 		return channel -> channel.getGuild().getSelfMember().hasPermission(channel.getPermissionContainer(), permission);
+	}
+
+	public static void storeForUpdates(Message message) {
+		message.pin().queue();
+	}
+
+	public static void submitAndStore(MessageAction messageAction) {
+		messageAction.queue(GrimmSlashCommand::storeForUpdates);
 	}
 
 	protected void sendResponse(SlashCommandEvent event, String msg, boolean ephemeral) {
@@ -70,8 +79,4 @@ public abstract class GrimmSlashCommand {
 	}
 
 	public abstract void execute(SlashCommandEvent event);
-
-	public void storeForUpdates(Message message) {
-		message.pin().queue();
-	}
 }

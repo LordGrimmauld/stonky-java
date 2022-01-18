@@ -2,10 +2,10 @@ package mod.grimmauld.stonky.discord.commands;
 
 import mod.grimmauld.stonky.data.DataManager;
 import mod.grimmauld.stonky.data.Rarity;
+import mod.grimmauld.stonky.discord.GrimmSlashCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.requests.RestAction;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Instant;
@@ -31,10 +31,9 @@ public abstract class RarityBasedUpdateBoardCommand extends UpdateBoardCommand {
 	@Override
 	protected void sendMessages(MessageChannel channel) {
 		eligible.stream()
-			.map(this::createEmbedForRarity)
+			.map(getOrCreateEmbedForExtraInfo(this::titleForRarity, this::createEmbedForRarity))
 			.map(channel::sendMessageEmbeds)
-			.map(RestAction::complete)
-			.forEach(this::storeForUpdates);
+			.forEach(GrimmSlashCommand::submitAndStore);
 	}
 
 	private MessageEmbed createEmbedForRarity(Rarity rarity) {

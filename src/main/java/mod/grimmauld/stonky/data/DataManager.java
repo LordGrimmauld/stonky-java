@@ -19,9 +19,9 @@ import java.util.stream.StreamSupport;
 public class DataManager {
 	private static final Gson gson = new Gson();
 	public final FactionManager factionManager;
+	public final CrateManager crateManager = new CrateManager();
 	private final Set<Consumer<DataManager>> refreshCallbacks = new HashSet<>();
 	private Set<TradeElement> tradeElements = new HashSet<>();
-	public final CrateManager crateManager = new CrateManager();
 
 	public DataManager() {
 		factionManager = new FactionManager(this);

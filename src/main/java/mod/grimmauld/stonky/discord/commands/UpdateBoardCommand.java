@@ -2,16 +2,21 @@ package mod.grimmauld.stonky.discord.commands;
 
 import mod.grimmauld.stonky.Main;
 import mod.grimmauld.stonky.discord.GrimmSlashCommand;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public abstract class UpdateBoardCommand extends GrimmSlashCommand {
+	private static final Map<String, MessageEmbed> bufferedEmbeds = new ConcurrentHashMap<>();
 	protected final String threadName;
 	protected final String titleRegex;
 
@@ -36,7 +41,13 @@ public abstract class UpdateBoardCommand extends GrimmSlashCommand {
 	}
 
 	private static void updateMessagesInChannel(MessageChannel channel) {
-		channel.retrievePinnedMessages().queue(messages -> messages.stream().filter(message -> message.getAuthor().equals(channel.getJDA().getSelfUser())).forEach(message -> getUpdateBoardCommandStream().forEach(updateBoardCommand -> updateBoardCommand.tryUpdateEmbeds(message))));
+		bufferedEmbeds.clear();
+		channel.retrievePinnedMessages().queue(
+			messages -> messages.stream()
+				.filter(message -> message.getAuthor().equals(channel.getJDA().getSelfUser()))
+				.forEach(message -> getUpdateBoardCommandStream()
+					.forEach(updateBoardCommand -> updateBoardCommand.tryUpdateEmbeds(message)))
+		);
 	}
 
 	private static Stream<UpdateBoardCommand> getUpdateBoardCommandStream() {
@@ -65,27 +76,27 @@ public abstract class UpdateBoardCommand extends GrimmSlashCommand {
 
 	protected abstract void sendMessages(MessageChannel channel);
 
-	public boolean matchesTitleRegex(MessageEmbed embed) {
-		String title = embed.getTitle();
-		return title != null && title.matches(titleRegex);
-	}
-
-	public MessageEmbed getUpdatedEmbed(MessageEmbed oldEmbed) {
-		String title = oldEmbed.getTitle();
-		if (title == null || !title.matches(titleRegex)) {
-			Main.LOGGER.error("Updateable embed title does not match title regex {}", titleRegex);
-			return new EmbedBuilder().build();
-		}
-		return createEmbedForTitle(title);
-	}
-
 	protected abstract MessageEmbed createEmbedForTitle(String title);
+
+	protected MessageEmbed lazyCreateEmbedForTitle(String title) {
+		return bufferedEmbeds.computeIfAbsent(title, this::createEmbedForTitle);
+	}
+
+	protected MessageEmbed getOrCreateEmbedForTitle(String title, Supplier<MessageEmbed> fallback) {
+		return bufferedEmbeds.computeIfAbsent(title, assignedTitle -> fallback.get());
+	}
+
+	protected <T> Function<T, MessageEmbed> getOrCreateEmbedForExtraInfo(Function<? super T, String> title, Function<? super T, MessageEmbed> fallback) {
+		return t -> bufferedEmbeds.computeIfAbsent(title.apply(t), assignedTitle -> fallback.apply(t));
+	}
 
 	public void tryUpdateEmbeds(Message message) {
 		List<MessageEmbed> newEmbeds = message.getEmbeds()
 			.stream()
-			.filter(this::matchesTitleRegex)
-			.map(this::getUpdatedEmbed)
+			.map(MessageEmbed::getTitle)
+			.filter(Objects::nonNull)
+			.filter(title -> title.matches(titleRegex))
+			.map(this::lazyCreateEmbedForTitle)
 			.toList();
 		if (!newEmbeds.isEmpty())
 			message.editMessageEmbeds(newEmbeds).submit();

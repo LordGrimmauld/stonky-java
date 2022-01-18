@@ -4,10 +4,10 @@ import mod.grimmauld.stonky.data.Crate;
 import mod.grimmauld.stonky.data.DataManager;
 import mod.grimmauld.stonky.data.Rarity;
 import mod.grimmauld.stonky.data.TradeElement;
+import mod.grimmauld.stonky.discord.GrimmSlashCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.requests.RestAction;
 import org.apache.commons.lang3.text.StrBuilder;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,11 +36,10 @@ public class CrateCommand extends UpdateBoardCommand {
 			.filter(Objects::nonNull)
 			.map(TradeElement::getLocalizedName)
 			.map(name -> "Opening " + name)
-			.map(this::createEmbedForTitle)
+			.map(this::lazyCreateEmbedForTitle)
 			.filter(Objects::nonNull)
 			.map(channel::sendMessageEmbeds)
-			.map(RestAction::complete)
-			.forEach(this::storeForUpdates);
+			.forEach(GrimmSlashCommand::submitAndStore);
 	}
 
 	@Override

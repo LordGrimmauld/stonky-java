@@ -1,6 +1,5 @@
 package mod.grimmauld.stonky;
 
-import mod.grimmauld.stonky.data.CrateManager;
 import mod.grimmauld.stonky.data.DataManager;
 import mod.grimmauld.stonky.discord.CommandRegistry;
 import mod.grimmauld.stonky.discord.DiscordBot;

@@ -2,7 +2,9 @@ package mod.grimmauld.stonky.data;
 
 import mod.grimmauld.stonky.Main;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -21,7 +23,7 @@ public class FileManager {
 	// get a file from the resources folder
 	// works everywhere, IDEA, unit test and JAR file.
 	public static InputStream getFileFromResourceAsStream(String fileName) {
-		InputStream inputStream =  Main.class.getClassLoader().getResourceAsStream(fileName);
+		InputStream inputStream = Main.class.getClassLoader().getResourceAsStream(fileName);
 
 		// the stream holding the file content
 		if (inputStream == null) {
