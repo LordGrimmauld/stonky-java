@@ -14,7 +14,7 @@ import static mod.grimmauld.stonky.data.Rarity.*;
 public class CraftCommand extends RarityBasedUpdateBoardCommand {
 
 	public CraftCommand(String name, DataManager dataManager) {
-		super(name, "Crafting", "Get info on part crafting", dataManager, Set.of(RARE, SPECIAL, EPIC, LEGENDARY));
+		super(name, "Crafting", "Get info on part crafting", dataManager, Set.of(RARE, SPECIAL, EPIC, LEGENDARY, COMMON));
 	}
 
 	@Override

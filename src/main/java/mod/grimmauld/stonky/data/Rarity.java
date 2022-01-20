@@ -2,8 +2,8 @@ package mod.grimmauld.stonky.data;
 
 import java.awt.*;
 import java.util.Arrays;
+import java.util.Optional;
 
-@SuppressWarnings("unused")
 public enum Rarity {
 	RARE("Rare", 0, 102, 204),
 	SPECIAL("Special", 51, 202, 204),
@@ -21,11 +21,15 @@ public enum Rarity {
 	}
 
 	public static Rarity byName(String name) {
+		return byNameOptional(name).orElse(COMMON);
+	}
+
+	public static Optional<Rarity> byNameOptional(String name) {
 		for (Rarity rarity : Rarity.values()) {
 			if (rarity.rarityName.equals(name))
-				return rarity;
+				return Optional.of(rarity);
 		}
-		return Rarity.COMMON;
+		return Optional.empty();
 	}
 
 	public static Rarity fromTradeElement(TradeElement tradeElement) {

@@ -87,7 +87,11 @@ public abstract class UpdateBoardCommand extends GrimmSlashCommand {
 	}
 
 	protected <T> Function<T, MessageEmbed> getOrCreateEmbedForExtraInfo(Function<? super T, String> title, Function<? super T, MessageEmbed> fallback) {
-		return t -> bufferedEmbeds.computeIfAbsent(title.apply(t), assignedTitle -> fallback.apply(t));
+		return t -> createEmbedForExtraInfo(t, title, fallback);
+	}
+
+	protected <T> MessageEmbed createEmbedForExtraInfo(T t, Function<? super T, String> title, Function<? super T, MessageEmbed> fallback) {
+		return bufferedEmbeds.computeIfAbsent(title.apply(t), assignedTitle -> fallback.apply(t));
 	}
 
 	public void tryUpdateEmbeds(Message message) {

@@ -6,6 +6,12 @@ import mod.grimmauld.stonky.discord.GrimmSlashCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.ThreadChannel;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Instant;
@@ -13,6 +19,7 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 
 public abstract class RarityBasedUpdateBoardCommand extends UpdateBoardCommand {
+	private static final String RARITY_OPTION_KEY = "rarity";
 	protected final DataManager dataManager;
 	protected final Collection<Rarity> eligible;
 
@@ -53,5 +60,34 @@ public abstract class RarityBasedUpdateBoardCommand extends UpdateBoardCommand {
 	@Override
 	protected MessageEmbed createEmbedForTitle(String title) {
 		return createEmbedForRarity(Rarity.byName(title.replaceFirst(titleRegex, "$1")));
+	}
+
+	@Override
+	protected CommandData attachExtraData(CommandData data) {
+		OptionData optionData = new OptionData(OptionType.STRING, RARITY_OPTION_KEY, "Specify a rarity for board creation");
+		eligible.forEach(rarity -> optionData.addChoice(RARITY_OPTION_KEY, rarity.rarityName));
+		return super.attachExtraData(data).addOptions(optionData);
+	}
+
+	@Override
+	public void execute(SlashCommandEvent event) {
+		Rarity rarity = event.getOptions()
+			.stream()
+			.filter(optionMapping -> optionMapping.getName().equals(RARITY_OPTION_KEY) && optionMapping.getType() == OptionType.STRING)
+			.map(OptionMapping::getAsString)
+			.findFirst()
+			.flatMap(Rarity::byNameOptional)
+			.orElse(null);
+
+		if (rarity == null) {
+			super.execute(event);
+			return;
+		}
+
+		sendResponse(event, "Creating embed...", true);
+		MessageChannel channel = getOrCreateThread(event.getChannel());
+		submitAndStore(channel.sendMessageEmbeds(createEmbedForExtraInfo(rarity, this::titleForRarity, this::createEmbedForRarity)));
+		if (channel instanceof ThreadChannel threadChannel)
+			threadChannel.addThreadMember(event.getUser()).queue();
 	}
 }
