@@ -65,7 +65,7 @@ public abstract class RarityBasedUpdateBoardCommand extends UpdateBoardCommand {
 	@Override
 	protected CommandData attachExtraData(CommandData data) {
 		OptionData optionData = new OptionData(OptionType.STRING, RARITY_OPTION_KEY, "Specify a rarity for board creation");
-		eligible.forEach(rarity -> optionData.addChoice(RARITY_OPTION_KEY, rarity.rarityName));
+		eligible.forEach(rarity -> optionData.addChoice(rarity.rarityName, rarity.rarityName));
 		return super.attachExtraData(data).addOptions(optionData);
 	}
 
