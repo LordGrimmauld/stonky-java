@@ -4,10 +4,9 @@ import mod.grimmauld.stonky.data.Crate;
 import mod.grimmauld.stonky.data.DataManager;
 import mod.grimmauld.stonky.data.Rarity;
 import mod.grimmauld.stonky.data.TradeElement;
-import mod.grimmauld.stonky.discord.GrimmSlashCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import org.apache.commons.lang3.text.StrBuilder;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,6 +18,7 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.DoubleAdder;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class CrateCommand extends UpdateBoardCommand {
 	private static final DecimalFormat df = new DecimalFormat("0.00");
@@ -30,16 +30,13 @@ public class CrateCommand extends UpdateBoardCommand {
 	}
 
 	@Override
-	protected void sendMessages(MessageChannel channel) {
-		dataManager.crateManager.crates.stream()
+	protected Stream<MessageEmbed> createEmbedsForEvent(SlashCommandEvent event) {
+		return dataManager.crateManager.crates.stream()
 			.map(crate -> crate.getAsTradeElement(dataManager))
 			.filter(Objects::nonNull)
 			.map(TradeElement::getLocalizedName)
 			.map(name -> "Opening " + name)
-			.map(this::lazyCreateEmbedForTitle)
-			.filter(Objects::nonNull)
-			.map(channel::sendMessageEmbeds)
-			.forEach(GrimmSlashCommand::submitAndStore);
+			.map(this::lazyCreateEmbedForTitle);
 	}
 
 	@Override

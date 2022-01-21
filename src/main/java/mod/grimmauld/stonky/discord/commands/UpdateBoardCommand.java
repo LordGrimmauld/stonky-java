@@ -58,10 +58,15 @@ public abstract class UpdateBoardCommand extends GrimmSlashCommand {
 	public void execute(SlashCommandEvent event) {
 		sendResponse(event, "Creating thread...", true);
 		MessageChannel channel = getOrCreateThread(event.getChannel());
-		sendMessages(channel);
+		createEmbedsForEvent(event)
+			.filter(Objects::nonNull)
+			.map(event.getMessageChannel()::sendMessageEmbeds)
+			.forEach(GrimmSlashCommand::submitAndStore);
 		if (channel instanceof ThreadChannel threadChannel)
 			threadChannel.addThreadMember(event.getUser()).queue();
 	}
+
+	protected abstract Stream<MessageEmbed> createEmbedsForEvent(SlashCommandEvent event);
 
 	protected MessageChannel getOrCreateThread(MessageChannel original) {
 		if ((original instanceof ThreadChannel threadChannel1 ? threadChannel1.getParentMessageChannel() : original)
@@ -73,8 +78,6 @@ public abstract class UpdateBoardCommand extends GrimmSlashCommand {
 				.orElseGet(() -> guildMessageChannel.createThreadChannel(threadName).complete());
 		return original;
 	}
-
-	protected abstract void sendMessages(MessageChannel channel);
 
 	protected abstract MessageEmbed createEmbedForTitle(String title);
 
