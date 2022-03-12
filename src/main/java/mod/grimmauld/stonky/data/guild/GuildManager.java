@@ -37,15 +37,14 @@ public class GuildManager {
 				try (BufferedWriter writer = new BufferedWriter(new FileWriter(GUILD_FILE_PATH))) {
 					writer.write("");
 				} catch (IOException e) {
+					Main.LOGGER.warn("Could not validate or create file structure: {}", e.getMessage());
 					successful = false;
 				}
 			}
 		} else {
 			successful = false;
+			Main.LOGGER.warn("Could not validate or create file structure: root is not writeable");
 		}
-
-		if (!successful)
-			Main.LOGGER.warn("Could not validate or create file structure");
 		return successful;
 	}
 
