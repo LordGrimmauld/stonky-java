@@ -89,4 +89,8 @@ public abstract class GrimmSlashCommand {
 	public boolean canExecuteFor(User user) {
 		return isPublic() || user.getId().equals(BuildConfig.OWNER);
 	}
+
+	public boolean canRegister() {
+		return true;
+	}
 }

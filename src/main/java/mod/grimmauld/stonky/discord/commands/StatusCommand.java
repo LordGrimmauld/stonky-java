@@ -1,10 +1,8 @@
 package mod.grimmauld.stonky.discord.commands;
 
 import mod.grimmauld.stonky.Main;
-import mod.grimmauld.stonky.discord.CommandRegistry;
 import mod.grimmauld.stonky.discord.GrimmSlashCommand;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.commands.Command;
 import org.apache.commons.lang3.text.StrBuilder;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 
@@ -14,6 +12,7 @@ import java.util.stream.Collectors;
 
 public class StatusCommand extends GrimmSlashCommand {
 	private static final RuntimeMXBean rb = ManagementFactory.getRuntimeMXBean();
+
 	public StatusCommand(String name) {
 		super(name, "get status and debug information");
 	}

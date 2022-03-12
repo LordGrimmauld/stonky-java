@@ -37,11 +37,16 @@ public class DiscordBot extends ListenerAdapter {
 		return jda;
 	}
 
+	public Optional<JDA> getJDAOptional() {
+		return Optional.ofNullable(jda);
+	}
+
 	@Override
 	public void onReady(@NotNull ReadyEvent event) {
 		super.onReady(event);
 		commandRegistry.stream()
 				.filter(GrimmSlashCommand::isPublic)
+				.filter(GrimmSlashCommand::canRegister)
 				.forEach(grimmSlashCommand -> event.getJDA().upsertCommand(grimmSlashCommand.getCommandData()).submit());
 		Optional.ofNullable(event.getJDA().getGuildById(BuildConfig.DEBUG_GUILD))
 				.ifPresent(debugGuild -> commandRegistry.stream().filter(((Predicate<GrimmSlashCommand>) GrimmSlashCommand::isPublic).negate())
