@@ -22,26 +22,26 @@ public class SalvageCommand extends RarityBasedUpdateBoardCommand {
 
 	static {
 		SALVAGE_RETURNS.put(RARE, List.of(
-			ImmutablePair.of(53, 150), // Scrap
-			ImmutablePair.of(43, 50) // Copper
+				ImmutablePair.of(53, 150), // Scrap
+				ImmutablePair.of(43, 50) // Copper
 		));
 		SALVAGE_RETURNS.put(SPECIAL, List.of(
-			ImmutablePair.of(53, 40), // Scrap
-			ImmutablePair.of(43, 100), // Copper
-			ImmutablePair.of(85, 60), // Wires
-			ImmutablePair.of(785, 30) // Plastic
+				ImmutablePair.of(53, 40), // Scrap
+				ImmutablePair.of(43, 100), // Copper
+				ImmutablePair.of(85, 60), // Wires
+				ImmutablePair.of(785, 30) // Plastic
 		));
 		SALVAGE_RETURNS.put(EPIC, List.of(
-			ImmutablePair.of(53, 80), // Scrap
-			ImmutablePair.of(43, 150), // Copper
-			ImmutablePair.of(85, 170), // Wires
-			ImmutablePair.of(785, 80) // Plastic
+				ImmutablePair.of(53, 80), // Scrap
+				ImmutablePair.of(43, 150), // Copper
+				ImmutablePair.of(85, 170), // Wires
+				ImmutablePair.of(785, 80) // Plastic
 		));
 		SALVAGE_RETURNS.put(LEGENDARY, List.of(
-			ImmutablePair.of(53, 50), // Scrap
-			ImmutablePair.of(43, 250), // Copper
-			ImmutablePair.of(168, 250), // Electronics
-			ImmutablePair.of(784, 250) // batteries
+				ImmutablePair.of(53, 50), // Scrap
+				ImmutablePair.of(43, 250), // Copper
+				ImmutablePair.of(168, 250), // Electronics
+				ImmutablePair.of(784, 250) // batteries
 		));
 	}
 
@@ -60,16 +60,16 @@ public class SalvageCommand extends RarityBasedUpdateBoardCommand {
 		DoubleAdder sellPrice = new DoubleAdder();
 		DoubleAdder buyPrice = new DoubleAdder();
 		salvageRecipe.stream()
-			.map(pair -> ImmutablePair.of(dataManager.getById(pair.getLeft()), pair.getRight()))
-			.filter(pair -> pair.getLeft() != null).forEach(tradeElementIntegerPair -> {
-				TradeElement tradeElement = tradeElementIntegerPair.getLeft();
-				int amount = tradeElementIntegerPair.getRight();
-				resources.appendln(tradeElement.getStrippedName() + " " + amount);
-				sellPrice.add(tradeElement.getSellPrice() * amount / (tradeElement.getAmount() * 100d));
-				buyPrice.add(tradeElement.getBuyPrice() * amount / (tradeElement.getAmount() * 100d));
-			});
+				.map(pair -> ImmutablePair.of(dataManager.getById(pair.getLeft()), pair.getRight()))
+				.filter(pair -> pair.getLeft() != null).forEach(tradeElementIntegerPair -> {
+					TradeElement tradeElement = tradeElementIntegerPair.getLeft();
+					int amount = tradeElementIntegerPair.getRight();
+					resources.appendln(tradeElement.getStrippedName() + " " + amount);
+					sellPrice.add(tradeElement.getSellPrice() * amount / (tradeElement.getAmount() * 100d));
+					buyPrice.add(tradeElement.getBuyPrice() * amount / (tradeElement.getAmount() * 100d));
+				});
 		eb.addField("Resources", resources.toString(), true);
 		eb.addField("Coins", "Sell total " + df.format(sellPrice.doubleValue()) + "\nSell total with Tax " + df.format(sellPrice.doubleValue() * 0.9)
-			+ "\nBuy total " + df.format(buyPrice.doubleValue()) + "\nBuy total with Tax " + df.format(buyPrice.doubleValue() * 0.9), true);
+				+ "\nBuy total " + df.format(buyPrice.doubleValue()) + "\nBuy total with Tax " + df.format(buyPrice.doubleValue() * 0.9), true);
 	}
 }

@@ -1,13 +1,15 @@
 package mod.grimmauld.stonky.discord;
 
+import mod.grimmauld.stonky.BuildConfig;
 import mod.grimmauld.stonky.util.StreamUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
+import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -27,7 +29,7 @@ public abstract class GrimmSlashCommand {
 	protected static void executeInAllThreads(JDA jda, Consumer<? super ThreadChannel> consumer) {
 		jda.getThreadChannelCache().stream().filter(ThreadChannel::isOwner).forEach(consumer);
 		jda.getTextChannelCache().stream().filter(hasPermissionIn(Permission.MESSAGE_HISTORY))
-			.map(IThreadContainer::retrieveArchivedPublicThreadChannels).forEach(c -> c.queue(l -> l.stream().filter(ThreadChannel::isOwner).filter(StreamUtils.distinctByKey(ThreadChannel::getName)).forEach(consumer)));
+				.map(IThreadContainer::retrieveArchivedPublicThreadChannels).forEach(c -> c.queue(l -> l.stream().filter(ThreadChannel::isOwner).filter(StreamUtils.distinctByKey(ThreadChannel::getName)).forEach(consumer)));
 	}
 
 	protected static Predicate<GuildChannel> hasPermissionIn(Permission permission) {
@@ -42,7 +44,7 @@ public abstract class GrimmSlashCommand {
 		messageAction.queue(GrimmSlashCommand::storeForUpdates);
 	}
 
-	protected void sendResponse(SlashCommandEvent event, String msg, boolean ephemeral) {
+	protected void sendResponse(SlashCommandInteractionEvent event, String msg, boolean ephemeral) {
 		if (msg.isEmpty())
 			return;
 
@@ -53,7 +55,7 @@ public abstract class GrimmSlashCommand {
 		event.reply(msg).setEphemeral(ephemeral).submit();
 	}
 
-	protected void sendEmbedResponse(SlashCommandEvent event, EmbedBuilder eb, boolean ephermal) {
+	protected void sendEmbedResponse(SlashCommandInteractionEvent event, EmbedBuilder eb, boolean ephermal) {
 		MessageEmbed msg = eb.build();
 		if (msg.isEmpty())
 			return;
@@ -66,17 +68,25 @@ public abstract class GrimmSlashCommand {
 		return help != null ? help : "no help message provided";
 	}
 
-	public CommandData getCommandData() {
-		return attachExtraData(new CommandData(getName(), getHelp()));
+	public SlashCommandData getCommandData() {
+		return attachExtraData(new CommandDataImpl(getName(), getHelp()));
 	}
 
 	public String getName() {
 		return name;
 	}
 
-	protected CommandData attachExtraData(CommandData data) {
+	protected SlashCommandData attachExtraData(SlashCommandData data) {
 		return data;
 	}
 
-	public abstract void execute(SlashCommandEvent event);
+	public abstract void execute(SlashCommandInteractionEvent event);
+
+	public boolean isPublic() {
+		return true;
+	}
+
+	public boolean canExecuteFor(User user) {
+		return isPublic() || user.getId().equals(BuildConfig.OWNER);
+	}
 }

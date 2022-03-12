@@ -2,7 +2,7 @@ package mod.grimmauld.stonky.discord.commands;
 
 import mod.grimmauld.stonky.BuildConfig;
 import mod.grimmauld.stonky.discord.GrimmSlashCommand;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
 public class InviteCommand extends GrimmSlashCommand {
 	public InviteCommand(String name) {
@@ -10,7 +10,7 @@ public class InviteCommand extends GrimmSlashCommand {
 	}
 
 	@Override
-	public void execute(SlashCommandEvent event) {
+	public void execute(SlashCommandInteractionEvent event) {
 		sendResponse(event, BuildConfig.INVITE, true);
 	}
 }

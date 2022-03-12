@@ -18,7 +18,7 @@ public class CommandRegistry {
 
 	public <T extends GrimmSlashCommand> Stream<T> getCommandsOfType(Class<T> tClass) {
 		return stream()
-			.filter(tClass::isInstance)
-			.map(tClass::cast);
+				.filter(tClass::isInstance)
+				.map(tClass::cast);
 	}
 }

@@ -6,7 +6,7 @@ import mod.grimmauld.stonky.data.Rarity;
 import mod.grimmauld.stonky.data.TradeElement;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import org.apache.commons.lang3.text.StrBuilder;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,13 +30,13 @@ public class CrateCommand extends UpdateBoardCommand {
 	}
 
 	@Override
-	protected Stream<MessageEmbed> createEmbedsForEvent(SlashCommandEvent event) {
+	protected Stream<MessageEmbed> createEmbedsForEvent(SlashCommandInteractionEvent event) {
 		return dataManager.crateManager.crates.stream()
-			.map(crate -> crate.getAsTradeElement(dataManager))
-			.filter(Objects::nonNull)
-			.map(TradeElement::getLocalizedName)
-			.map(name -> "Opening " + name)
-			.map(this::lazyCreateEmbedForTitle);
+				.map(crate -> crate.getAsTradeElement(dataManager))
+				.filter(Objects::nonNull)
+				.map(TradeElement::getLocalizedName)
+				.map(name -> "Opening " + name)
+				.map(this::lazyCreateEmbedForTitle);
 	}
 
 	@Override
@@ -68,19 +68,19 @@ public class CrateCommand extends UpdateBoardCommand {
 		DoubleAdder goodPrices = new DoubleAdder();
 
 		loot.stream()
-			.sorted(Comparator.comparing(TradeElement::getSellPrice).reversed())
-			.forEach(te -> {
-				double price = te.getSellPrice() * 0.9 / 100;
-				if (price > rerollThreshold) {
-					keep.appendln(te.getLocalizedName()
-						+ ": " + te.getFormatSellPrice());
-					goodPrices.add(price);
-					goodItems.incrementAndGet();
-				} else {
-					reroll.appendln(te.getLocalizedName()
-						+ ": " + te.getFormatSellPrice());
-				}
-			});
+				.sorted(Comparator.comparing(TradeElement::getSellPrice).reversed())
+				.forEach(te -> {
+					double price = te.getSellPrice() * 0.9 / 100;
+					if (price > rerollThreshold) {
+						keep.appendln(te.getLocalizedName()
+								+ ": " + te.getFormatSellPrice());
+						goodPrices.add(price);
+						goodItems.incrementAndGet();
+					} else {
+						reroll.appendln(te.getLocalizedName()
+								+ ": " + te.getFormatSellPrice());
+					}
+				});
 
 		eb.addField("Keep", keep.toString(), true);
 		eb.addField("Reroll", reroll.toString(), true);

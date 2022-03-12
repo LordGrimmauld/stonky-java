@@ -16,12 +16,13 @@ public class Main {
 	public static final Logger LOGGER = LoggerFactory.getLogger(BuildConfig.APPID);
 	public static final DataManager DATA_MANAGER = new DataManager();
 	public static final CommandRegistry COMMAND_REGISTRY = new CommandRegistry()
-		.register(new GithubCommand("github"))
-		.register(new VersionCommand("version"))
-		.register(new InviteCommand("invite"))
-		.register(new CraftCommand("craft", DATA_MANAGER))
-		.register(new SalvageCommand("salvage", DATA_MANAGER))
-		.register(new CrateCommand("crate", DATA_MANAGER));
+			.register(new GithubCommand("github"))
+			.register(new VersionCommand("version"))
+			.register(new InviteCommand("invite"))
+			.register(new CraftCommand("craft", DATA_MANAGER))
+			.register(new SalvageCommand("salvage", DATA_MANAGER))
+			.register(new CrateCommand("crate", DATA_MANAGER))
+			.register(new StatusCommand("status"));
 	public static final DiscordBot DISCORD_BOT = new DiscordBot(COMMAND_REGISTRY);
 	private static final ScheduledExecutorService SCHEDULER = Executors.newSingleThreadScheduledExecutor();
 

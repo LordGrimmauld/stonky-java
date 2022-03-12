@@ -231,10 +231,10 @@ public class TradeElement {
 	@Override
 	public String toString() {
 		return "TradeElement{" +
-			"id=" + id +
-			", name='" + name + '\'' +
-			", faction='" + faction + '\'' +
-			'}';
+				"id=" + id +
+				", name='" + name + '\'' +
+				", faction='" + faction + '\'' +
+				'}';
 	}
 
 	public String getStrippedName() {

@@ -36,32 +36,32 @@ public class DataManager {
 			data = "{'data':[]}";
 		}
 		tradeElements = StreamSupport.stream(JsonParser.parseString(data)
-				.getAsJsonObject()
-				.get("data")
-				.getAsJsonArray()
-				.spliterator(), false)
-			.map(je -> gson.fromJson(je, TradeElement.class))
-			.filter(Objects::nonNull)
-			.collect(Collectors.toSet());
+						.getAsJsonObject()
+						.get("data")
+						.getAsJsonArray()
+						.spliterator(), false)
+				.map(je -> gson.fromJson(je, TradeElement.class))
+				.filter(Objects::nonNull)
+				.collect(Collectors.toSet());
 		refreshCallbacks.forEach(setConsumer -> setConsumer.accept(this));
 	}
 
 	@Nullable
 	public TradeElement getById(int id) {
 		return getTradeElements()
-			.stream()
-			.filter(TradeElement.matchesById(id))
-			.findFirst()
-			.orElse(null);
+				.stream()
+				.filter(TradeElement.matchesById(id))
+				.findFirst()
+				.orElse(null);
 	}
 
 	@Nullable
 	public TradeElement getByName(String localizedName) {
 		return getTradeElements()
-			.stream()
-			.filter(TradeElement.matchesByLocalizedName(localizedName))
-			.findFirst()
-			.orElse(null);
+				.stream()
+				.filter(TradeElement.matchesByLocalizedName(localizedName))
+				.findFirst()
+				.orElse(null);
 	}
 
 	public Set<TradeElement> getTradeElements() {

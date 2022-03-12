@@ -4,7 +4,7 @@ import mod.grimmauld.stonky.Main;
 import mod.grimmauld.stonky.discord.GrimmSlashCommand;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -43,10 +43,10 @@ public abstract class UpdateBoardCommand extends GrimmSlashCommand {
 	private static void updateMessagesInChannel(MessageChannel channel) {
 		bufferedEmbeds.clear();
 		channel.retrievePinnedMessages().queue(
-			messages -> messages.stream()
-				.filter(message -> message.getAuthor().equals(channel.getJDA().getSelfUser()))
-				.forEach(message -> getUpdateBoardCommandStream()
-					.forEach(updateBoardCommand -> updateBoardCommand.tryUpdateEmbeds(message)))
+				messages -> messages.stream()
+						.filter(message -> message.getAuthor().equals(channel.getJDA().getSelfUser()))
+						.forEach(message -> getUpdateBoardCommandStream()
+								.forEach(updateBoardCommand -> updateBoardCommand.tryUpdateEmbeds(message)))
 		);
 	}
 
@@ -55,27 +55,27 @@ public abstract class UpdateBoardCommand extends GrimmSlashCommand {
 	}
 
 	@Override
-	public void execute(SlashCommandEvent event) {
+	public void execute(SlashCommandInteractionEvent event) {
 		sendResponse(event, "Creating thread...", true);
 		MessageChannel channel = getOrCreateThread(event.getChannel());
 		createEmbedsForEvent(event)
-			.filter(Objects::nonNull)
-			.map(event.getMessageChannel()::sendMessageEmbeds)
-			.forEach(GrimmSlashCommand::submitAndStore);
+				.filter(Objects::nonNull)
+				.map(event.getMessageChannel()::sendMessageEmbeds)
+				.forEach(GrimmSlashCommand::submitAndStore);
 		if (channel instanceof ThreadChannel threadChannel)
 			threadChannel.addThreadMember(event.getUser()).queue();
 	}
 
-	protected abstract Stream<MessageEmbed> createEmbedsForEvent(SlashCommandEvent event);
+	protected abstract Stream<MessageEmbed> createEmbedsForEvent(SlashCommandInteractionEvent event);
 
 	protected MessageChannel getOrCreateThread(MessageChannel original) {
 		if ((original instanceof ThreadChannel threadChannel1 ? threadChannel1.getParentMessageChannel() : original)
-			instanceof IThreadContainer guildMessageChannel)
+				instanceof IThreadContainer guildMessageChannel)
 			return guildMessageChannel.getThreadChannels()
-				.stream()
-				.filter(threadChannel -> threadChannel.getName().equals(threadName))
-				.findFirst()
-				.orElseGet(() -> guildMessageChannel.createThreadChannel(threadName).complete());
+					.stream()
+					.filter(threadChannel -> threadChannel.getName().equals(threadName))
+					.findFirst()
+					.orElseGet(() -> guildMessageChannel.createThreadChannel(threadName).complete());
 		return original;
 	}
 
@@ -99,12 +99,12 @@ public abstract class UpdateBoardCommand extends GrimmSlashCommand {
 
 	public void tryUpdateEmbeds(Message message) {
 		List<MessageEmbed> newEmbeds = message.getEmbeds()
-			.stream()
-			.map(MessageEmbed::getTitle)
-			.filter(Objects::nonNull)
-			.filter(title -> title.matches(titleRegex))
-			.map(this::lazyCreateEmbedForTitle)
-			.toList();
+				.stream()
+				.map(MessageEmbed::getTitle)
+				.filter(Objects::nonNull)
+				.filter(title -> title.matches(titleRegex))
+				.map(this::lazyCreateEmbedForTitle)
+				.toList();
 		if (!newEmbeds.isEmpty())
 			message.editMessageEmbeds(newEmbeds).submit();
 	}

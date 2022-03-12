@@ -5,13 +5,15 @@ import mod.grimmauld.stonky.Main;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.events.ReadyEvent;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.security.auth.login.LoginException;
+import java.util.Optional;
+import java.util.function.Predicate;
 
 @ParametersAreNonnullByDefault
 public class DiscordBot extends ListenerAdapter {
@@ -39,14 +41,19 @@ public class DiscordBot extends ListenerAdapter {
 	public void onReady(@NotNull ReadyEvent event) {
 		super.onReady(event);
 		commandRegistry.stream()
-			.forEach(grimmSlashCommand -> event.getJDA().upsertCommand(grimmSlashCommand.getCommandData()).submit());
+				.filter(GrimmSlashCommand::isPublic)
+				.forEach(grimmSlashCommand -> event.getJDA().upsertCommand(grimmSlashCommand.getCommandData()).submit());
+		Optional.ofNullable(event.getJDA().getGuildById(BuildConfig.DEBUG_GUILD))
+				.ifPresent(debugGuild -> commandRegistry.stream().filter(((Predicate<GrimmSlashCommand>) GrimmSlashCommand::isPublic).negate())
+						.forEach(grimmSlashCommand -> debugGuild.upsertCommand(grimmSlashCommand.getCommandData()).submit()));
 	}
 
 	@Override
-	public void onSlashCommand(SlashCommandEvent event) {
+	public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
 		commandRegistry
-			.stream()
-			.filter(grimmSlashCommand -> grimmSlashCommand.getName().equals(event.getName()))
-			.forEach(grimmSlashCommand -> grimmSlashCommand.execute(event));
+				.stream()
+				.filter(grimmSlashCommand -> grimmSlashCommand.getName().equals(event.getName()))
+				.filter(grimmSlashCommand -> grimmSlashCommand.canExecuteFor(event.getUser()))
+				.forEach(grimmSlashCommand -> grimmSlashCommand.execute(event));
 	}
 }

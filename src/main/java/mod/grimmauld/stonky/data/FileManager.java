@@ -56,11 +56,11 @@ public class FileManager {
 			String jarPath = dirURL.getPath().substring(5, dirURL.getPath().indexOf("!")); //strip out only the JAR file
 			try (JarFile jar = new JarFile(URLDecoder.decode(jarPath, StandardCharsets.UTF_8))) {
 				return StreamSupport.stream(Spliterators.spliteratorUnknownSize(jar.entries().asIterator(), Spliterator.ORDERED), false)
-					.filter(((Predicate<JarEntry>) JarEntry::isDirectory).negate())
-					.map(JarEntry::getName)
-					.filter(name -> name.startsWith(path))
-					.collect(Collectors.toSet())
-					.stream();
+						.filter(((Predicate<JarEntry>) JarEntry::isDirectory).negate())
+						.map(JarEntry::getName)
+						.filter(name -> name.startsWith(path))
+						.collect(Collectors.toSet())
+						.stream();
 			} catch (IOException e) {
 				Main.LOGGER.error("Can not open file stream", e);
 				return Stream.empty();

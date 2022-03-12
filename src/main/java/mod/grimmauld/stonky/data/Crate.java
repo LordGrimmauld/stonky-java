@@ -17,9 +17,9 @@ public class Crate {
 
 	public List<TradeElement> getContents(DataManager dataManager) {
 		return dataManager.getTradeElements()
-			.stream()
-			.filter(tradeElement -> loot.contains(tradeElement.getId()))
-			.toList();
+				.stream()
+				.filter(tradeElement -> loot.contains(tradeElement.getId()))
+				.toList();
 	}
 
 	public Integer getId() {
@@ -28,11 +28,11 @@ public class Crate {
 
 	public double getRerollCost(DataManager dataManager) {
 		return dataManager.getTradeElements()
-			.stream()
-			.filter(TradeElement.matchesById(57))
-			.findFirst()
-			.map(TradeElement::getEffectiveCost)
-			.orElse(0D) * reroll;
+				.stream()
+				.filter(TradeElement.matchesById(57))
+				.findFirst()
+				.map(TradeElement::getEffectiveCost)
+				.orElse(0D) * reroll;
 	}
 
 	public int getRerollAmount() {

@@ -16,12 +16,12 @@ public class CrateManager {
 
 	public CrateManager() {
 		crates = FileManager.getResourceListing("data/crates")
-			.map(FileManager::getFileFromResourceAsStream)
-			.map(InputStreamReader::new)
-			.map(JsonParser::parseReader)
-			.map(je -> gson.fromJson(je, Crate.class))
-			.filter(Objects::nonNull)
-			.collect(Collectors.toSet());
+				.map(FileManager::getFileFromResourceAsStream)
+				.map(InputStreamReader::new)
+				.map(JsonParser::parseReader)
+				.map(je -> gson.fromJson(je, Crate.class))
+				.filter(Objects::nonNull)
+				.collect(Collectors.toSet());
 	}
 
 	public static Predicate<Crate> matchesById(int id) {
@@ -34,8 +34,8 @@ public class CrateManager {
 		if (tradeElement == null)
 			return null;
 		return crates.stream()
-			.filter(matchesById(tradeElement.getId()))
-			.findFirst()
-			.orElse(null);
+				.filter(matchesById(tradeElement.getId()))
+				.findFirst()
+				.orElse(null);
 	}
 }

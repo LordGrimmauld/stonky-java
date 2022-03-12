@@ -23,14 +23,14 @@ public class CraftCommand extends RarityBasedUpdateBoardCommand {
 		dataManager.factionManager.getFactions().forEach((factionId, factionName) -> {
 			StrBuilder parts = new StrBuilder();
 			dataManager.getTradeElements()
-				.stream()
-				.filter(rarity::contains)
-				.filter(TradeElement::isCraftable)
-				.filter(tradeElement -> tradeElement.getFactionNumber() == factionId)
-				.filter(tradeElement -> tradeElement.getCraftingMargin() > 0)
-				.sorted(Comparator.comparing(TradeElement::getCraftingMargin).reversed())
-				.limit(5)
-				.forEach(tradeElement -> parts.appendln(tradeElement.getLocalizedName() + ": " + tradeElement.getFormatCraftingMargin()));
+					.stream()
+					.filter(rarity::contains)
+					.filter(TradeElement::isCraftable)
+					.filter(tradeElement -> tradeElement.getFactionNumber() == factionId)
+					.filter(tradeElement -> tradeElement.getCraftingMargin() > 0)
+					.sorted(Comparator.comparing(TradeElement::getCraftingMargin).reversed())
+					.limit(5)
+					.forEach(tradeElement -> parts.appendln(tradeElement.getLocalizedName() + ": " + tradeElement.getFormatCraftingMargin()));
 			if (!parts.isEmpty())
 				eb.addField(factionName, parts.toString(), true);
 		});

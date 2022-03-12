@@ -16,9 +16,9 @@ public class FactionManager {
 
 	private void refreshAvailableFactions(DataManager dataManager) {
 		cachedFactions = dataManager.getTradeElements().stream().filter(tradeElement -> tradeElement.getFaction() != null)
-			.map(te -> ImmutablePair.of(te.getFactionNumber(), te.getFaction()))
-			.distinct()
-			.collect(Collectors.toMap(ImmutablePair::getLeft, ImmutablePair::getRight));
+				.map(te -> ImmutablePair.of(te.getFactionNumber(), te.getFaction()))
+				.distinct()
+				.collect(Collectors.toMap(ImmutablePair::getLeft, ImmutablePair::getRight));
 	}
 
 	public Map<Integer, String> getFactions() {

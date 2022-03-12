@@ -34,15 +34,15 @@ configurations {
 }
 
 dependencies {
-    implementation 'org.jetbrains:annotations:22.0.0'
+    implementation 'org.jetbrains:annotations:23.0.0'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
     configurations.implementation.extendsFrom(configurations.extraLibs)
-    extraLibs 'com.google.code.gson:gson:2.8.9'
+    extraLibs 'com.google.code.gson:gson:2.9.0'
     extraLibs 'commons-io:commons-io:2.11.0'
     extraLibs "net.dv8tion:JDA:$jda_version"
     // implementation group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.32'
-    extraLibs('ch.qos.logback:logback-classic:1.2.10')
+    extraLibs('ch.qos.logback:logback-classic:1.2.11')
     extraLibs group: 'org.apache.commons', name: 'commons-lang3', version: '3.0'
 }
 
@@ -146,6 +146,8 @@ buildConfig {
             buildConfigField "String", "DISCORD_TOKEN", "\"${props.token}\""
             buildConfigField "String", "INVITE", "\"${props.invite}\""
             buildConfigField "String", "GITHUB", "\"${props.github}\""
+            buildConfigField "String", "OWNER", "\"${props.owner}\""
+            buildConfigField "String", "DEBUG_GUILD", "\"${props.debug_guild}\""
         }
     }
 
