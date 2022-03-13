@@ -11,8 +11,6 @@ import java.time.Instant;
 import java.util.Set;
 
 public class TrackedCommand extends GrimmSlashCommand {
-	private static final String PLAYER_PROFILE_KEY = "profile";
-
 	public TrackedCommand(String name) {
 		super(name, "Track progress of a player based on their CO_Driver profile");
 	}
@@ -24,7 +22,7 @@ public class TrackedCommand extends GrimmSlashCommand {
 			return;
 		}
 
-		event.deferReply();
+		// event.deferReply().setEphemeral(true).submit();
 		// TODO: add player names
 
 		Set<Long> trackedProfiles = Main.GUILD_MANAGER.getGuildFor(event.getGuild()).getTrackedProfiles();

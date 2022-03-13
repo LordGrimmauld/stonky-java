@@ -38,9 +38,12 @@ public class TrackCommand extends GrimmSlashCommand {
 		event.deferReply();
 		// TODO: add player name
 		Guild guild = Main.GUILD_MANAGER.getGuildFor(event.getGuild());
-		guild.getTrackedProfiles().add(Long.decode(profile));
-		guild.updateManager();
-		sendResponse(event, "started tracking player " + profile, true);
+		if (guild.getTrackedProfiles().add(Long.decode(profile))) {
+			guild.updateManager();
+			sendResponse(event, "started tracking player " + profile, true);
+		} else {
+			sendResponse(event, "Player " + profile + " is already being tracked", true);
+		}
 	}
 
 	@Override

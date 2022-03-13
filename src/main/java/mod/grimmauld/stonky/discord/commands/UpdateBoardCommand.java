@@ -104,6 +104,7 @@ public abstract class UpdateBoardCommand extends GrimmSlashCommand {
 				.filter(Objects::nonNull)
 				.filter(title -> title.matches(titleRegex))
 				.map(this::lazyCreateEmbedForTitle)
+				.filter(Objects::nonNull)
 				.toList();
 		if (!newEmbeds.isEmpty())
 			message.editMessageEmbeds(newEmbeds).submit();

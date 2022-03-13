@@ -5,16 +5,17 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-@SuppressWarnings("unused")
+
 public class Guild implements Serializable {
+	private final Set<Long> trackedProfiles = new HashSet<>();
 	@Nullable
 	private transient GuildManager guildManager = null;
-	private final Set<Long> trackedProfiles = new HashSet<>();
 
 	public Guild(net.dv8tion.jda.api.entities.Guild guild) {
 
 	}
 
+	@SuppressWarnings("unused")
 	public Guild() {
 		// empty because gson requires this
 	}

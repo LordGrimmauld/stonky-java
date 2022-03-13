@@ -1,6 +1,8 @@
 package mod.grimmauld.stonky.data.guild;
 
+import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import mod.grimmauld.stonky.Main;
 import net.dv8tion.jda.api.JDA;
 
@@ -10,18 +12,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class GuildManager {
+	public static final Gson GSON = new GsonBuilder()
+			.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+			.setPrettyPrinting()
+			.create();
 	public static final File GUILD_FILE_PATH = new File("run/guilds.json");
 	private static final File ROOT = new File("./");
 	private static final File RUN = new File("run");
 	public static final boolean ENABLE_GUILD_CONTENT = checkFileStructure();
-	private static final Gson gson = new Gson();
 
 	public Map<Long, Guild> guilds = new HashMap<>();
 
 	public static GuildManager readFromDisk() {
 		GuildManager manager = null;
 		try (Reader reader = Files.newBufferedReader(GUILD_FILE_PATH.toPath())) {
-			manager = gson.fromJson(reader, GuildManager.class);
+			manager = GSON.fromJson(reader, GuildManager.class);
 		} catch (IOException e) {
 			Main.LOGGER.error("Error loading guild data: {}", e.getMessage());
 		}
@@ -51,9 +56,8 @@ public class GuildManager {
 	public void onUpdateGuilds() {
 		if (!ENABLE_GUILD_CONTENT)
 			return;
-		String json = gson.toJson(this);
 		try (BufferedWriter writer = new BufferedWriter(new FileWriter(GUILD_FILE_PATH))) {
-			writer.write(json);
+			writer.write(GSON.toJson(this));
 		} catch (IOException e) {
 			Main.LOGGER.error("Error saving guild data: {}", e.getMessage());
 		}

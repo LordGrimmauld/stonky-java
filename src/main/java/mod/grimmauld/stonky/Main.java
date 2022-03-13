@@ -5,6 +5,7 @@ import mod.grimmauld.stonky.data.guild.GuildManager;
 import mod.grimmauld.stonky.discord.CommandRegistry;
 import mod.grimmauld.stonky.discord.DiscordBot;
 import mod.grimmauld.stonky.discord.commands.*;
+import mod.grimmauld.stonky.discord.commands.guild_commands.TestDevStuffCommand;
 import mod.grimmauld.stonky.discord.commands.guild_commands.TrackCommand;
 import mod.grimmauld.stonky.discord.commands.guild_commands.TrackedCommand;
 import mod.grimmauld.stonky.discord.commands.guild_commands.UntrackCommand;
@@ -30,6 +31,7 @@ public class Main {
 			.register(new TrackCommand("track"))
 			.register(new TrackedCommand("tracked"))
 			.register(new UntrackCommand("untrack"))
+			.register(new TestDevStuffCommand("testdev"))
 			.register(new StatusCommand("status"));
 	public static final DiscordBot DISCORD_BOT = new DiscordBot(COMMAND_REGISTRY);
 	private static final ScheduledExecutorService SCHEDULER = Executors.newSingleThreadScheduledExecutor();
