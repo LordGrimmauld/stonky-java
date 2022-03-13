@@ -19,6 +19,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -41,7 +42,11 @@ public class TestDevStuffCommand extends GrimmSlashCommand {
 		Map<Long, Integer> scores = calculateTournamentScores(guild);
 
 		StrBuilder scoreTable = new StrBuilder();
-		scores.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).forEach(e -> scoreTable.appendln(e.getKey() + ": " + e.getValue()));
+		AtomicInteger rank = new AtomicInteger();
+		scores.entrySet()
+				.stream()
+				.sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+				.forEach(e -> scoreTable.appendln("#" + rank.incrementAndGet() + ": " + e.getKey() + ": " + e.getValue()));
 
 		EmbedBuilder eb = new EmbedBuilder();
 		eb.setTitle("Clan tournament scores for " + event.getGuild().getName());
