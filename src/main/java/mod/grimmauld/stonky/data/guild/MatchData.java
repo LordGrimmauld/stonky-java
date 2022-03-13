@@ -20,25 +20,9 @@ public class MatchData {
 		return matchId;
 	}
 
-	public String getMatchClassification() {
-		return matchClassification;
-	}
-
-	public String getMatchType() {
-		return matchType;
-	}
-
-	public String getMatchStart() {
-		return matchStart;
-	}
-
-	public int getKills() {
-		return kills;
-	}
-
 	public int calculateScore() {
-		if (!matchType.equals("8v8") || !matchClassification.equals("PvP"))
+		if (!"8v8".equals(matchType) || !"PvP".equals(matchClassification))
 			return 0;
-		return Math.max(0, kills - (medalList.contains("PvpMvpWin") ? 1 : 2));
+		return Math.max(0, kills - (medalList != null && medalList.contains("PvpMvpWin") ? 1 : 2));
 	}
 }
