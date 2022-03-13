@@ -28,7 +28,7 @@ public class TrackedCommand extends GrimmSlashCommand {
 		Set<Long> trackedProfiles = Main.GUILD_MANAGER.getGuildFor(event.getGuild()).getTrackedProfiles();
 
 		StrBuilder builder = new StrBuilder();
-		trackedProfiles.forEach(trackedProfile -> builder.appendln("Player " + "*NAME*" + ": https://beta.crossoutdb.com/profile/" + trackedProfile));
+		trackedProfiles.forEach(builder::appendln);
 		String players = builder.isEmpty() ? "No players are being tracked" : builder.toString();
 		EmbedBuilder eb = new EmbedBuilder();
 		eb.setTimestamp(Instant.now());
