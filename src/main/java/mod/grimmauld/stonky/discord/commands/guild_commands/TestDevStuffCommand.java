@@ -16,10 +16,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -44,7 +41,7 @@ public class TestDevStuffCommand extends GrimmSlashCommand {
 		Map<Long, Integer> scores = calculateTournamentScores(guild);
 
 		StrBuilder scoreTable = new StrBuilder();
-		scores.forEach((l, s) -> scoreTable.appendln(l + ": " + s));
+		scores.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).forEach(e -> scoreTable.appendln(e.getKey() + ": " + e.getValue()));
 
 		EmbedBuilder eb = new EmbedBuilder();
 		eb.setTitle("Clan tournament scores for " + event.getGuild().getName());
